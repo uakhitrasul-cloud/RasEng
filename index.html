@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>WordQuest — учи английский</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F5F7F1;
+    --surface:#FFFFFF;
+    --surface-alt:#EAF0E6;
+    --primary:#2F9E8F;
+    --primary-dark:#227C70;
+    --primary-light:#DCF1EC;
+    --accent:#FF8A5B;
+    --accent-light:#FFE7DA;
+    --violet:#7C6FE0;
+    --violet-light:#E8E5FB;
+    --text:#202B24;
+    --text-muted:#6E7A72;
+    --success:#3FAE72;
+    --success-light:#E1F5E7;
+    --error:#E15554;
+    --error-light:#FCE3E2;
+    --border:#E2E8DC;
+    --radius-lg:26px;
+    --radius-md:18px;
+    --radius-sm:12px;
+    --shadow:0 10px 28px rgba(32,43,36,0.08);
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0;padding:0;height:100%;
+    font-family:'Inter',sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    -webkit-tap-highlight-color:transparent;
+    overscroll-behavior:none;
+  }
+  h1,h2,h3,.display{
+    font-family:'Fredoka',sans-serif;
+    margin:0;
+  }
+  button{font-family:inherit;border:none;background:none;cursor:pointer;color:inherit;}
+  #app{
+    min-height:100dvh;
+    display:flex;
+    flex-direction:column;
+    max-width:480px;
+    margin:0 auto;
+    position:relative;
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+  .view{display:none;flex:1;flex-direction:column;padding:20px 20px 28px;animation:fadeIn .35s ease;}
+  .view.active{display:flex;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+  /* ---------- HOME ---------- */
+  .home-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand-badge{
+    width:42px;height:42px;border-radius:14px;
+    background:linear-gradient(145deg,var(--primary),var(--primary-dark));
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Fredoka';font-weight:600;color:#fff;font-size:20px;
+    box-shadow:var(--shadow);
+  }
+  .brand-name{font-size:20px;font-weight:600;letter-spacing:.2px;}
+  .brand-sub{font-size:12px;color:var(--text-muted);margin-top:-2px;}
+
+  .stat-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:22px 0 8px;}
+  .stat-card{
+    background:var(--surface);
+    border-radius:var(--radius-md);
+    padding:14px 10px;
+    text-align:center;
+    box-shadow:var(--shadow);
+  }
+  .stat-num{font-family:'Fredoka';font-size:22px;font-weight:600;}
+  .stat-label{font-size:11px;color:var(--text-muted);margin-top:2px;}
+  .stat-card.streak .stat-num{color:var(--accent);}
+  .stat-card.level .stat-num{color:var(--primary-dark);}
+
+  .xp-wrap{margin:18px 0 6px;}
+  .xp-bar-track{
+    height:10px;border-radius:999px;background:var(--surface-alt);overflow:hidden;
+  }
+  .xp-bar-fill{
+    height:100%;border-radius:999px;
+    background:linear-gradient(90deg,var(--primary),var(--primary-dark));
+    transition:width .5s ease;
+  }
+  .xp-caption{display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted);margin-top:6px;}
+
+  .home-hero{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:4px;padding:14px 0 10px;
+  }
+  .home-hero .pixel-mascot{font-size:44px;line-height:1;filter:drop-shadow(0 6px 10px rgba(0,0,0,0.08));}
+  .home-hero h2{font-size:16.5px;font-weight:600;margin-top:4px;}
+
+  .btn-primary{
+    width:100%;padding:19px;border-radius:var(--radius-lg);
+    background:var(--primary);color:#fff;font-family:'Fredoka';font-size:19px;font-weight:600;
+    box-shadow:0 10px 22px rgba(47,158,143,0.35);
+    transition:transform .12s ease, box-shadow .12s ease;
+  }
+  .btn-primary:active{transform:scale(0.97);box-shadow:0 6px 14px rgba(47,158,143,0.3);}
+
+  .quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
+  .btn-secondary{
+    padding:16px 12px;border-radius:var(--radius-md);
+    background:var(--surface);color:var(--text);font-weight:600;font-size:14.5px;
+    box-shadow:var(--shadow);
+    transition:transform .12s ease;
+    display:flex;flex-direction:column;align-items:flex-start;gap:6px;
+  }
+  .btn-secondary:active{transform:scale(0.96);}
+  .btn-secondary .ico{font-size:20px;}
+  .btn-secondary .sub{font-size:11px;color:var(--text-muted);font-weight:500;}
+
+  /* ---------- HEADER (sub-views) ---------- */
+  .subheader{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
+  .back-btn{
+    width:38px;height:38px;border-radius:12px;background:var(--surface);
+    display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:var(--shadow);
+    flex-shrink:0;
+  }
+  .subheader h2{font-size:18px;font-weight:600;}
+  .subheader .sub-caption{font-size:12px;color:var(--text-muted);margin-top:1px;}
+
+  /* ---------- GAME VIEW ---------- */
+  .game-progress-row{display:flex;align-items:center;gap:10px;margin-bottom:18px;}
+  .game-progress-track{flex:1;height:8px;border-radius:999px;background:var(--surface-alt);overflow:hidden;}
+  .game-progress-fill{height:100%;background:var(--accent);border-radius:999px;transition:width .3s ease;}
+  .game-close{width:34px;height:34px;border-radius:10px;background:var(--surface);display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow);font-size:15px;color:var(--text-muted);flex-shrink:0;}
+  .streak-chip{display:flex;align-items:center;gap:4px;font-size:13px;font-weight:600;color:var(--accent);flex-shrink:0;}
+
+  .q-card{
+    background:var(--surface);border-radius:var(--radius-lg);
+    padding:26px 20px;box-shadow:var(--shadow);text-align:center;margin-bottom:22px;
+    flex-shrink:0;
+  }
+  .q-kind{font-size:12px;color:var(--text-muted);font-weight:600;margin-bottom:10px;}
+  .q-prompt{font-family:'Fredoka';font-size:28px;font-weight:600;word-break:break-word;}
+  .q-prompt.small{font-size:19px;font-weight:500;font-family:'Inter';line-height:1.5;}
+  .q-hint{font-size:13px;color:var(--text-muted);margin-top:8px;}
+
+  .options-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;flex:1;align-content:start;}
+  .options-grid.one-col{grid-template-columns:1fr;}
+  .opt-btn{
+    background:var(--surface);border-radius:var(--radius-md);
+    padding:18px 12px;font-size:16px;font-weight:600;text-align:center;
+    box-shadow:var(--shadow);border:2px solid transparent;
+    transition:transform .12s ease, background .15s ease, border-color .15s ease;
+    min-height:64px;display:flex;align-items:center;justify-content:center;
+  }
+  .opt-btn:active{transform:scale(0.96);}
+  .opt-btn.correct{background:var(--success-light);border-color:var(--success);color:#1E6B41;}
+  .opt-btn.wrong{background:var(--error-light);border-color:var(--error);color:#9C2C2B;}
+  .opt-btn.dim{opacity:.45;}
+  .opt-btn.disabled{pointer-events:none;}
+
+  .build-zone{
+    min-height:64px;background:var(--surface-alt);border-radius:var(--radius-md);
+    display:flex;flex-wrap:wrap;gap:8px;padding:12px;align-content:flex-start;margin-bottom:16px;
+    border:2px dashed var(--border);
+  }
+  .word-chip{
+    background:var(--surface);padding:10px 16px;border-radius:999px;font-weight:600;font-size:15px;
+    box-shadow:var(--shadow);transition:transform .12s ease;
+  }
+  .word-chip:active{transform:scale(0.94);}
+  .chip-bank{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:16px;}
+  .chip-bank .word-chip.used{opacity:0;pointer-events:none;}
+  .chip-bank .word-chip{background:var(--primary-light);color:var(--primary-dark);}
+  .build-zone .word-chip{background:var(--accent-light);color:#B75A2E;}
+
+  .feedback-bar{
+    position:sticky;bottom:0;margin:16px -20px -28px;padding:16px 20px calc(16px + env(safe-area-inset-bottom));
+    display:flex;flex-direction:column;gap:12px;
+    animation:slideUp .25s ease;
+  }
+  @keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+  .feedback-bar.correct{background:var(--success-light);}
+  .feedback-bar.wrong{background:var(--error-light);}
+  .feedback-top{display:flex;align-items:center;justify-content:space-between;gap:14px;}
+  .feedback-text{font-weight:700;font-size:15px;}
+  .feedback-bar.correct .feedback-text{color:#1E6B41;}
+  .feedback-bar.wrong .feedback-text{color:#9C2C2B;}
+  .feedback-sub{font-size:12.5px;color:var(--text-muted);font-weight:500;margin-top:2px;}
+  .next-btn{
+    padding:13px 24px;border-radius:14px;font-weight:700;font-size:14.5px;color:#fff;flex-shrink:0;
+  }
+  .feedback-bar.correct .next-btn{background:var(--success);}
+  .feedback-bar.wrong .next-btn{background:var(--error);}
+  .check-btn{
+    width:100%;padding:16px;border-radius:var(--radius-md);background:var(--primary);color:#fff;
+    font-weight:700;font-size:15.5px;margin-top:auto;
+  }
+  .check-btn:disabled{opacity:.4;}
+
+  /* ---------- EXPLAIN CARD (why) ---------- */
+  .explain-card{
+    background:rgba(255,255,255,0.6);border-radius:14px;padding:14px 16px;font-size:13px;line-height:1.55;color:var(--text);
+  }
+  .explain-card b{font-weight:700;}
+  .explain-row{margin-bottom:6px;}
+  .explain-row:last-child{margin-bottom:0;}
+  .explain-label{font-weight:700;font-size:11.5px;text-transform:none;color:var(--text-muted);margin-bottom:2px;}
+  .quote-box{
+    background:rgba(255,255,255,0.7);border-left:3px solid var(--primary);border-radius:6px;
+    padding:8px 10px;font-style:italic;font-size:12.5px;margin:6px 0;
+  }
+
+  /* ---------- WORDS VIEW ---------- */
+  .level-tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+  .level-tab{
+    flex:1;padding:10px 4px;border-radius:12px;background:var(--surface);text-align:center;
+    font-size:13px;font-weight:600;color:var(--text-muted);box-shadow:var(--shadow);
+    min-width:52px;
+  }
+  .level-tab.active{background:var(--primary);color:#fff;}
+  .level-tab.locked{opacity:.5;}
+  .word-list{display:flex;flex-direction:column;gap:10px;overflow-y:auto;}
+  .word-item{
+    background:var(--surface);border-radius:var(--radius-md);padding:14px 16px;box-shadow:var(--shadow);
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+  }
+  .word-item-en{font-weight:700;font-size:15.5px;}
+  .word-item-ru{font-size:13px;color:var(--text-muted);margin-top:2px;}
+  .word-item-ex{font-size:11.5px;color:var(--text-muted);margin-top:4px;font-style:italic;}
+  .word-item-def{font-size:11.5px;color:var(--text-muted);margin-top:4px;}
+  .word-item-extra{font-size:11px;color:var(--violet);margin-top:4px;font-weight:600;}
+  .review-badge{
+    background:var(--accent-light);color:#B75A2E;font-size:10.5px;font-weight:700;
+    padding:4px 9px;border-radius:999px;white-space:nowrap;flex-shrink:0;
+  }
+  .empty-state{text-align:center;padding:40px 10px;color:var(--text-muted);font-size:14px;}
+
+  /* ---------- PROGRESS VIEW ---------- */
+  .progress-card{
+    background:var(--surface);border-radius:var(--radius-lg);padding:22px;box-shadow:var(--shadow);margin-bottom:16px;
+  }
+  .progress-card h3{font-size:14px;color:var(--text-muted);font-weight:600;margin-bottom:14px;}
+  .big-level{display:flex;align-items:baseline;gap:8px;}
+  .big-level .num{font-family:'Fredoka';font-size:44px;font-weight:600;color:var(--primary-dark);}
+  .big-level .lbl{font-size:14px;color:var(--text-muted);}
+  .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .mini-stat{background:var(--surface-alt);border-radius:var(--radius-sm);padding:14px;text-align:center;}
+  .mini-stat .v{font-family:'Fredoka';font-size:20px;font-weight:600;}
+  .mini-stat .l{font-size:11px;color:var(--text-muted);margin-top:2px;}
+  .cefr-row{display:flex;flex-direction:column;gap:10px;}
+  .cefr-item{
+    display:flex;align-items:center;justify-content:space-between;padding:12px 14px;
+    background:var(--surface-alt);border-radius:var(--radius-sm);
+  }
+  .cefr-name{font-weight:700;font-size:14px;}
+  .cefr-desc{font-size:11.5px;color:var(--text-muted);}
+  .cefr-status{font-size:12px;font-weight:700;}
+  .cefr-status.open{color:var(--success);}
+  .cefr-status.locked{color:var(--text-muted);}
+  .bar-row{margin-bottom:12px;}
+  .bar-row:last-child{margin-bottom:0;}
+  .bar-row-top{display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin-bottom:6px;}
+  .bar-row-top .pct{color:var(--text-muted);font-weight:600;}
+  .mini-track{height:8px;border-radius:999px;background:var(--surface-alt);overflow:hidden;}
+  .mini-fill{height:100%;border-radius:999px;background:var(--primary);}
+  .mini-fill.violet{background:var(--violet);}
+  .mini-fill.accent{background:var(--accent);}
+  .weak-chip{
+    display:inline-flex;align-items:center;gap:6px;background:var(--error-light);color:#9C2C2B;
+    font-size:12px;font-weight:600;padding:7px 12px;border-radius:999px;margin:0 6px 6px 0;
+  }
+  .weak-empty{font-size:12.5px;color:var(--text-muted);}
+
+  /* ---------- GRAMMAR / READING HUB ---------- */
+  .hub-tabs{display:flex;gap:8px;margin-bottom:16px;}
+  .hub-tab{flex:1;padding:10px;border-radius:12px;background:var(--surface);text-align:center;font-size:13px;font-weight:600;color:var(--text-muted);box-shadow:var(--shadow);}
+  .hub-tab.active{background:var(--violet);color:#fff;}
+
+  .topic-card, .level-card, .text-card{
+    background:var(--surface);border-radius:var(--radius-md);padding:16px;box-shadow:var(--shadow);
+    margin-bottom:12px;display:flex;flex-direction:column;gap:8px;
+    transition:transform .12s ease;
+  }
+  .topic-card:active, .level-card:active, .text-card:active{transform:scale(0.98);}
+  .topic-card.locked, .level-card.locked{opacity:.55;pointer-events:none;}
+  .tc-top{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+  .tc-name{font-weight:700;font-size:15px;}
+  .tc-badge{font-size:11px;font-weight:700;color:#fff;background:var(--violet);padding:3px 9px;border-radius:999px;flex-shrink:0;}
+  .tc-badge.reading{background:var(--accent);}
+  .tc-lock{font-size:12px;color:var(--text-muted);font-weight:600;}
+  .tc-desc{font-size:12px;color:var(--text-muted);}
+
+  /* ---------- READER ---------- */
+  .reader-meta{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-muted);margin-bottom:14px;}
+  .reader-badge{background:var(--accent-light);color:#B75A2E;font-weight:700;padding:4px 10px;border-radius:999px;font-size:11px;}
+  .reader-body{
+    background:var(--surface);border-radius:var(--radius-lg);padding:22px 20px;box-shadow:var(--shadow);
+    font-size:16px;line-height:1.85;flex:1;overflow-y:auto;margin-bottom:16px;
+  }
+  .reader-body p{margin:0 0 16px;}
+  .reader-body p:last-child{margin-bottom:0;}
+  .tap-word{border-bottom:2px dotted var(--primary);color:var(--primary-dark);font-weight:600;cursor:pointer;}
+  .reader-title{font-family:'Fredoka';font-size:20px;font-weight:600;margin-bottom:14px;}
+
+  .word-popup-card{background:var(--surface);border-radius:20px;padding:22px 20px;box-shadow:var(--shadow);max-width:320px;width:100%;animation:popIn .25s ease;}
+  .wp-en{font-family:'Fredoka';font-size:20px;font-weight:600;}
+  .wp-ru{font-size:14px;color:var(--primary-dark);font-weight:600;margin-top:2px;}
+  .wp-def{font-size:13px;color:var(--text-muted);margin-top:10px;line-height:1.5;}
+  .wp-ex{font-size:12.5px;font-style:italic;color:var(--text-muted);margin-top:8px;}
+  .wp-close{width:100%;padding:13px;border-radius:14px;background:var(--primary-light);color:var(--primary-dark);font-weight:700;font-size:14px;margin-top:16px;}
+
+  /* ---------- LANDSCAPE ---------- */
+  @media (orientation:landscape) and (max-height:520px){
+    #app{max-width:none;}
+    .view{padding:14px 24px 16px;flex-direction:row;flex-wrap:wrap;gap:20px;}
+    .view#view-home{flex-direction:column;}
+    .view#view-game{align-content:flex-start;}
+    .view#view-game .game-progress-row{width:100%;}
+    .view#view-game .q-card{width:38%;margin-bottom:0;padding:20px 14px;}
+    .view#view-game .options-grid{width:58%;}
+    .view#view-game .chip-bank,.view#view-game .build-zone{width:100%;}
+    .view#view-game .check-btn{width:58%;margin-left:auto;}
+    .feedback-bar{margin:10px -24px -16px;}
+    .stat-row{width:100%;}
+    .home-hero{width:100%;padding:6px 0;}
+  }
+
+  ::-webkit-scrollbar{width:0;height:0;}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- HOME -->
+  <div class="view active" id="view-home">
+    <div class="home-top">
+      <div class="brand">
+        <div class="brand-badge">W</div>
+        <div>
+          <div class="brand-name">WordQuest</div>
+          <div class="brand-sub">учи английский каждый день</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-card level"><div class="stat-num" id="home-level">1</div><div class="stat-label">уровень</div></div>
+      <div class="stat-card"><div class="stat-num" id="home-xp">0</div><div class="stat-label">XP</div></div>
+      <div class="stat-card streak"><div class="stat-num" id="home-streak">0</div><div class="stat-label">серия 🔥</div></div>
+    </div>
+
+    <div class="xp-wrap">
+      <div class="xp-bar-track"><div class="xp-bar-fill" id="home-xp-fill" style="width:0%"></div></div>
+      <div class="xp-caption"><span id="home-xp-caption">0 / 100 XP</span><span id="home-cefr">A1 · Beginner</span></div>
+    </div>
+
+    <div class="home-hero">
+      <div class="pixel-mascot">🦉</div>
+      <h2>Готовы к новой порции слов?</h2>
+    </div>
+
+    <button class="btn-primary" onclick="startGame()">Играть · слова</button>
+    <div class="quick-grid">
+      <button class="btn-secondary" onclick="showView('words')"><span class="ico">📚</span>Слова<span class="sub">словарь</span></button>
+      <button class="btn-secondary" onclick="showView('grammar')"><span class="ico">🧩</span>Грамматика<span class="sub">A2–C1</span></button>
+      <button class="btn-secondary" onclick="showView('reading')"><span class="ico">📖</span>Чтение<span class="sub">B1–C2</span></button>
+      <button class="btn-secondary" onclick="showView('progress')"><span class="ico">📈</span>Прогресс<span class="sub">статистика</span></button>
+    </div>
+  </div>
+
+  <!-- GAME -->
+  <div class="view" id="view-game">
+    <div class="game-progress-row">
+      <button class="game-close" onclick="exitGame()">✕</button>
+      <div class="game-progress-track"><div class="game-progress-fill" id="game-progress-fill" style="width:0%"></div></div>
+      <div class="streak-chip">🔥 <span id="game-streak">0</span></div>
+    </div>
+
+    <div id="game-question-area"></div>
+  </div>
+
+  <!-- WORDS -->
+  <div class="view" id="view-words">
+    <div class="subheader">
+      <button class="back-btn" onclick="showView('home')">←</button>
+      <h2>Мои слова</h2>
+    </div>
+    <div class="level-tabs" id="word-level-tabs"></div>
+    <div class="word-list" id="word-list"></div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="view" id="view-progress">
+    <div class="subheader">
+      <button class="back-btn" onclick="showView('home')">←</button>
+      <h2>Прогресс</h2>
+    </div>
+    <div class="progress-card">
+      <h3>Текущий уровень</h3>
+      <div class="big-level"><span class="num" id="prog-level">1</span><span class="lbl" id="prog-xp-caption">0 / 100 XP до след. уровня</span></div>
+      <div class="xp-bar-track" style="margin-top:14px;"><div class="xp-bar-fill" id="prog-xp-fill" style="width:0%"></div></div>
+    </div>
+    <div class="progress-card">
+      <h3>Статистика</h3>
+      <div class="stats-grid">
+        <div class="mini-stat"><div class="v" id="prog-best-streak">0</div><div class="l">лучшая серия</div></div>
+        <div class="mini-stat"><div class="v" id="prog-accuracy">0%</div><div class="l">точность</div></div>
+        <div class="mini-stat"><div class="v" id="prog-answered">0</div><div class="l">вопросов пройдено</div></div>
+        <div class="mini-stat"><div class="v" id="prog-words-learned">0</div><div class="l">слов освоено</div></div>
+      </div>
+    </div>
+    <div class="progress-card">
+      <h3>Чтение по уровням</h3>
+      <div id="prog-reading-bars"></div>
+      <div class="stats-grid" style="margin-top:14px;">
+        <div class="mini-stat"><div class="v" id="prog-texts-read">0</div><div class="l">текстов прочитано</div></div>
+        <div class="mini-stat"><div class="v" id="prog-new-words">0</div><div class="l">новых слов из чтения</div></div>
+      </div>
+    </div>
+    <div class="progress-card">
+      <h3>Навыки чтения</h3>
+      <div id="prog-skill-bars"></div>
+    </div>
+    <div class="progress-card">
+      <h3>Грамматика — всего <span id="prog-grammar-overall">0%</span></h3>
+      <div id="prog-grammar-bars"></div>
+    </div>
+    <div class="progress-card">
+      <h3>Слабые темы</h3>
+      <div id="prog-weak-topics"></div>
+    </div>
+    <div class="progress-card">
+      <h3>Уровни сложности</h3>
+      <div class="cefr-row" id="cefr-list"></div>
+    </div>
+  </div>
+
+  <!-- GRAMMAR HUB -->
+  <div class="view" id="view-grammar">
+    <div class="subheader">
+      <button class="back-btn" onclick="showView('home')">←</button>
+      <div><h2>Грамматика</h2><div class="sub-caption">Выбери тему для практики</div></div>
+    </div>
+    <div class="hub-tabs" id="grammar-level-tabs"></div>
+    <div id="grammar-topic-list"></div>
+  </div>
+
+  <!-- GRAMMAR QUIZ -->
+  <div class="view" id="view-grammar-quiz">
+    <div class="game-progress-row">
+      <button class="game-close" onclick="showView('grammar')">✕</button>
+      <div class="game-progress-track"><div class="game-progress-fill" id="gq-progress-fill" style="width:0%"></div></div>
+    </div>
+    <div id="gq-area"></div>
+  </div>
+
+  <!-- READING HUB -->
+  <div class="view" id="view-reading">
+    <div class="subheader">
+      <button class="back-btn" onclick="showView('home')">←</button>
+      <div><h2>Чтение</h2><div class="sub-caption">Тексты с вопросами B1–C2</div></div>
+    </div>
+    <div id="reading-level-list"></div>
+  </div>
+
+  <!-- READER -->
+  <div class="view" id="view-reader">
+    <div class="subheader">
+      <button class="back-btn" onclick="showView('reading')">←</button>
+      <div><h2 id="reader-heading">Текст</h2></div>
+    </div>
+    <div class="reader-meta">
+      <span class="reader-badge" id="reader-level-badge">B1</span>
+      <span id="reader-wordcount">300 слов</span>
+    </div>
+    <div class="reader-body" id="reader-body"></div>
+    <button class="btn-primary" onclick="startReadingQuiz()">Перейти к вопросам</button>
+  </div>
+
+  <!-- READING QUIZ -->
+  <div class="view" id="view-reading-quiz">
+    <div class="game-progress-row">
+      <button class="game-close" onclick="showView('reading')">✕</button>
+      <div class="game-progress-track"><div class="game-progress-fill" id="rq-progress-fill" style="width:0%"></div></div>
+    </div>
+    <div id="rq-area"></div>
+  </div>
+
+</div>
+
+<div class="overlay" id="overlay-levelup">
+  <div class="overlay-card">
+    <div class="overlay-emoji">🎉</div>
+    <h3>Новый уровень!</h3>
+    <p id="levelup-text">Ты достиг уровня 2</p>
+    <button class="btn-primary" onclick="closeOverlay('overlay-levelup')">Продолжить</button>
+  </div>
+</div>
+
+<div class="overlay" id="overlay-session">
+  <div class="overlay-card">
+    <div class="overlay-emoji" id="session-emoji">🌟</div>
+    <h3 id="session-title">Отличная сессия!</h3>
+    <p id="session-text">Ты ответил правильно 4 из 5</p>
+    <button class="btn-primary" onclick="closeOverlay('overlay-session'); showView('home');">На главную</button>
+  </div>
+</div>
+
+<div class="overlay" id="overlay-word">
+  <div class="word-popup-card" id="word-popup-card"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<style>
+.overlay{
+    position:fixed;inset:0;background:rgba(32,43,36,0.5);display:none;
+    align-items:center;justify-content:center;z-index:50;padding:24px;
+}
+.overlay.show{display:flex;}
+.overlay-card{
+    background:var(--surface);border-radius:24px;padding:32px 26px;text-align:center;max-width:340px;width:100%;
+    animation:popIn .3s ease;
+}
+@keyframes popIn{from{transform:scale(0.85);opacity:0;}to{transform:scale(1);opacity:1;}}
+.overlay-emoji{font-size:52px;margin-bottom:10px;}
+.overlay-card h3{font-size:20px;margin-bottom:6px;}
+.overlay-card p{font-size:13.5px;color:var(--text-muted);margin:0 0 20px;}
+.toast{
+    position:fixed;top:18px;left:50%;transform:translateX(-50%) translateY(-70px);
+    background:var(--text);color:#fff;padding:12px 20px;border-radius:14px;font-size:13.5px;font-weight:600;
+    box-shadow:0 8px 20px rgba(0,0,0,0.25);z-index:60;transition:transform .35s ease;max-width:90%;text-align:center;
+}
+.toast.show{transform:translateX(-50%) translateY(0);}
+</style>
+
+<script>
+/* =============== WORD DATA =============== */
+const WORDS = [
+  // A1
+  {id:'apple',en:'apple',ru:'яблоко',ex:'I eat an apple every morning.',lvl:'A1'},
+  {id:'book',en:'book',ru:'книга',ex:'This book is very interesting.',lvl:'A1'},
+  {id:'house',en:'house',ru:'дом',ex:'They live in a small house.',lvl:'A1'},
+  {id:'water',en:'water',ru:'вода',ex:'Can I have a glass of water?',lvl:'A1'},
+  {id:'cat',en:'cat',ru:'кошка',ex:'The cat is sleeping on the sofa.',lvl:'A1'},
+  {id:'dog',en:'dog',ru:'собака',ex:'My dog loves to play outside.',lvl:'A1'},
+  {id:'table',en:'table',ru:'стол',ex:'Put the plates on the table.',lvl:'A1'},
+  {id:'chair',en:'chair',ru:'стул',ex:'She sat down on a chair.',lvl:'A1'},
+  {id:'window',en:'window',ru:'окно',ex:'Open the window, please.',lvl:'A1'},
+  {id:'car',en:'car',ru:'машина',ex:'We drove to the city by car.',lvl:'A1'},
+  {id:'sun',en:'sun',ru:'солнце',ex:'The sun is shining brightly today.',lvl:'A1'},
+  {id:'friend',en:'friend',ru:'друг',ex:'She is my best friend.',lvl:'A1'},
+  // A2
+  {id:'weather',en:'weather',ru:'погода',ex:'The weather is nice this weekend.',lvl:'A2'},
+  {id:'kitchen',en:'kitchen',ru:'кухня',ex:'Mom is cooking in the kitchen.',lvl:'A2'},
+  {id:'holiday',en:'holiday',ru:'отпуск',ex:'We are planning our summer holiday.',lvl:'A2'},
+  {id:'journey',en:'journey',ru:'путешествие',ex:'It was a long journey by train.',lvl:'A2'},
+  {id:'decision',en:'decision',ru:'решение',ex:'It was a difficult decision to make.',lvl:'A2'},
+  {id:'weekend',en:'weekend',ru:'выходные',ex:'What did you do at the weekend?',lvl:'A2'},
+  {id:'morning',en:'morning',ru:'утро',ex:'I always drink coffee in the morning.',lvl:'A2'},
+  {id:'evening',en:'evening',ru:'вечер',ex:'We meet friends every Friday evening.',lvl:'A2'},
+  {id:'hungry',en:'hungry',ru:'голодный',ex:'I am hungry, let us have lunch.',lvl:'A2'},
+  {id:'tired',en:'tired',ru:'уставший',ex:'She felt tired after the trip.',lvl:'A2'},
+  {id:'beautiful',en:'beautiful',ru:'красивый',ex:'What a beautiful garden this is!',lvl:'A2'},
+  {id:'difficult',en:'difficult',ru:'трудный',ex:'This exercise is quite difficult.',lvl:'A2'},
+  // B1
+  {id:'achieve',en:'achieve',ru:'достигать',ex:'She worked hard to achieve her goal.',lvl:'B1'},
+  {id:'opportunity',en:'opportunity',ru:'возможность',ex:'This job is a great opportunity.',lvl:'B1'},
+  {id:'environment',en:'environment',ru:'окружающая среда',ex:'We must protect the environment.',lvl:'B1'},
+  {id:'experience',en:'experience',ru:'опыт',ex:'He has a lot of work experience.',lvl:'B1'},
+  {id:'improve',en:'improve',ru:'улучшать',ex:'I want to improve my English.',lvl:'B1'},
+  {id:'responsibility',en:'responsibility',ru:'ответственность',ex:'It is your responsibility now.',lvl:'B1'},
+  {id:'according',en:'according to',ru:'согласно',ex:'According to the news, it will rain.',lvl:'B1'},
+  {id:'communicate',en:'communicate',ru:'общаться',ex:'It is easy to communicate with her.',lvl:'B1'},
+  {id:'imagine',en:'imagine',ru:'представлять',ex:'Imagine a world without pollution.',lvl:'B1'},
+  {id:'describe',en:'describe',ru:'описывать',ex:'Can you describe the picture?',lvl:'B1'},
+  {id:'government',en:'government',ru:'правительство',ex:'The government announced new rules.',lvl:'B1'},
+  {id:'relationship',en:'relationship',ru:'отношения',ex:'They have a strong relationship.',lvl:'B1'},
+  // B2
+  {id:'reluctant',en:'reluctant',ru:'неохотный',ex:'She was reluctant to admit her mistake.',lvl:'B2'},
+  {id:'thorough',en:'thorough',ru:'тщательный',ex:'He did a thorough investigation of the case.',lvl:'B2'},
+  {id:'persuade',en:'persuade',ru:'убеждать',ex:'I could not persuade him to change his mind.',lvl:'B2'},
+  {id:'reliable',en:'reliable',ru:'надёжный',ex:'This is a reliable source of information.',lvl:'B2'},
+  {id:'accomplish',en:'accomplish',ru:'достигать, выполнять',ex:'She managed to accomplish all her tasks.',lvl:'B2'},
+  {id:'contradict',en:'contradict',ru:'противоречить',ex:'His statement seemed to contradict the earlier report.',lvl:'B2'},
+  {id:'inevitable',en:'inevitable',ru:'неизбежный',ex:'Change is inevitable in a growing company.',lvl:'B2'},
+  {id:'justify',en:'justify',ru:'оправдывать',ex:'He tried to justify his decision to the board.',lvl:'B2'},
+  {id:'overwhelming',en:'overwhelming',ru:'подавляющий, огромный',ex:'The support from fans was overwhelming.',lvl:'B2'},
+  {id:'sufficient',en:'sufficient',ru:'достаточный',ex:'We do not have sufficient evidence to proceed.',lvl:'B2'},
+  {id:'assume',en:'assume',ru:'предполагать',ex:'I assume you have already read the report.',lvl:'B2'},
+  {id:'exaggerate',en:'exaggerate',ru:'преувеличивать',ex:'Do not exaggerate the size of the problem.',lvl:'B2'},
+  {id:'genuine',en:'genuine',ru:'подлинный, искренний',ex:'Her surprise seemed completely genuine.',lvl:'B2'},
+  {id:'compromise',en:'compromise',ru:'компромисс',ex:'They reached a compromise after long negotiations.',lvl:'B2'},
+  {id:'anticipate',en:'anticipate',ru:'предвидеть, ожидать',ex:'We anticipate strong demand next quarter.',lvl:'B2'},
+  // C1
+  {id:'ambiguous',en:'ambiguous',ru:'двусмысленный',ex:'The instructions were ambiguous and confused everyone.',lvl:'C1'},
+  {id:'discrepancy',en:'discrepancy',ru:'несоответствие',ex:'There is a discrepancy between the two reports.',lvl:'C1'},
+  {id:'meticulous',en:'meticulous',ru:'дотошный, скрупулёзный',ex:'She is meticulous about every detail of her work.',lvl:'C1'},
+  {id:'relentless',en:'relentless',ru:'неослабевающий, безжалостный',ex:'He faced relentless criticism from the press.',lvl:'C1'},
+  {id:'superficial',en:'superficial',ru:'поверхностный',ex:'Their analysis of the problem was rather superficial.',lvl:'C1'},
+  {id:'underlying',en:'underlying',ru:'лежащий в основе',ex:'We need to address the underlying cause of the issue.',lvl:'C1'},
+  {id:'plausible',en:'plausible',ru:'правдоподобный',ex:'His explanation sounded plausible at first.',lvl:'C1'},
+  {id:'controversial',en:'controversial',ru:'спорный, вызывающий споры',ex:'The new policy proved highly controversial.',lvl:'C1'},
+  {id:'deteriorate',en:'deteriorate',ru:'ухудшаться',ex:'Her health began to deteriorate rapidly.',lvl:'C1'},
+  {id:'facilitate',en:'facilitate',ru:'способствовать, облегчать',ex:'The new software will facilitate communication between teams.',lvl:'C1'},
+  {id:'inherent',en:'inherent',ru:'присущий, врождённый',ex:'There are inherent risks in any investment.',lvl:'C1'},
+  {id:'resilient',en:'resilient',ru:'устойчивый, стойкий',ex:'Children can be remarkably resilient after hardship.',lvl:'C1'},
+  {id:'skeptical',en:'skeptical',ru:'скептический',ex:'I remain skeptical about these claims.',lvl:'C1'},
+  {id:'substantiate',en:'substantiate',ru:'подтверждать',ex:'The witness could not substantiate her claims.',lvl:'C1'},
+  {id:'tentative',en:'tentative',ru:'предварительный',ex:'We made a tentative agreement to meet next week.',lvl:'C1'},
+  // C2
+  {id:'ubiquitous',en:'ubiquitous',ru:'вездесущий',ex:'Smartphones have become ubiquitous in modern life.',lvl:'C2'},
+  {id:'epitomize',en:'epitomize',ru:'олицетворять',ex:'Her career epitomizes success through perseverance.',lvl:'C2'},
+  {id:'equivocal',en:'equivocal',ru:'двусмысленный, уклончивый',ex:'His answer was deliberately equivocal.',lvl:'C2'},
+  {id:'protracted',en:'protracted',ru:'затяжной, продолжительный',ex:'The negotiations turned into a protracted dispute.',lvl:'C2'},
+  {id:'vindicate',en:'vindicate',ru:'оправдывать, подтверждать правоту',ex:'The new evidence finally vindicated him.',lvl:'C2'},
+  {id:'prevaricate',en:'prevaricate',ru:'уклоняться от прямого ответа',ex:'The minister prevaricated when asked about the scandal.',lvl:'C2'},
+  {id:'austere',en:'austere',ru:'строгий, аскетичный',ex:'He lived an austere life devoted to his research.',lvl:'C2'},
+  {id:'cacophony',en:'cacophony',ru:'какофония',ex:'The market was filled with a cacophony of voices.',lvl:'C2'},
+  {id:'deference',en:'deference',ru:'почтение, уважение',ex:'The students treated their professor with great deference.',lvl:'C2'},
+  {id:'exacerbate',en:'exacerbate',ru:'усугублять',ex:'The new policy only exacerbated the housing crisis.',lvl:'C2'},
+  {id:'fastidious',en:'fastidious',ru:'придирчивый, разборчивый',ex:'She is fastidious about grammar in every email.',lvl:'C2'},
+  {id:'juxtapose',en:'juxtapose',ru:'сопоставлять',ex:'The exhibition juxtaposes ancient artifacts with modern art.',lvl:'C2'},
+  {id:'obfuscate',en:'obfuscate',ru:'затемнять, запутывать',ex:'The report seemed designed to obfuscate the real figures.',lvl:'C2'},
+  {id:'paradigm',en:'paradigm',ru:'парадигма',ex:'The discovery represented a paradigm shift in physics.',lvl:'C2'},
+  {id:'surreptitious',en:'surreptitious',ru:'тайный, скрытный',ex:'He took a surreptitious glance at his phone during the meeting.',lvl:'C2'}
+];
+
+const GAP_SENTENCES = [
+  {parts:['I ','a student.'],ans:'am',opts:['am','is','are','be'],lvl:'A1'},
+  {parts:['She ','to school every day.'],ans:'goes',opts:['go','goes','going','gone'],lvl:'A1'},
+  {parts:['They ','playing football now.'],ans:'are',opts:['is','am','are','be'],lvl:'A1'},
+  {parts:['There ','some milk in the fridge.'],ans:'is',opts:['is','are','be','am'],lvl:'A1'},
+  {parts:['He ','his homework yesterday.'],ans:'did',opts:['do','does','did','doing'],lvl:'A2'},
+  {parts:['We ','to the cinema tomorrow.'],ans:'will go',opts:['go','goes','went','will go'],lvl:'A2'},
+  {parts:['Can you ','me a favor?'],ans:'do',opts:['do','does','did','doing'],lvl:'A2'},
+  {parts:['I ','never been to Paris.'],ans:'have',opts:['have','has','had','having'],lvl:'B1'},
+  {parts:['If it rains, we ',' stay at home.'],ans:'will',opts:['will','would','are','do'],lvl:'B1'},
+  {parts:['She has been working here ','five years.'],ans:'for',opts:['for','since','ago','during'],lvl:'B1'},
+  {parts:['If she ',' harder at school, she would have a better job now.'],ans:'had studied',opts:['had studied','studied','would study','has studied'],lvl:'B2',note:'Смешанное условное: прошлое условие → результат в настоящем.'},
+  {parts:['I wish I ',' more time to finish this project.'],ans:'had',opts:['had','have','would have','has'],lvl:'B2',note:'Wish + Past Simple — сожаление о настоящем.'},
+  {parts:['You can borrow my car ',' you bring it back before six.'],ans:'provided that',opts:['provided that','unless','even though','although'],lvl:'B2',note:'Provided that = при условии, что.'},
+  {parts:['She ',' a beautiful bouquet of flowers on her birthday.'],ans:'was given',opts:['was given','was gave','gave','has given'],lvl:'B2',note:'Пассив с двумя дополнениями: was given.'},
+  {parts:['He said that the meeting ',' postponed until further notice.'],ans:'had been',opts:['had been','has been','was','is'],lvl:'B2',note:'Косвенная речь: сдвиг времени назад (backshift).'},
+  {parts:['The professor, ',' research focuses on climate change, will give a lecture tomorrow.'],ans:'whose',opts:['whose','who','which','whom'],lvl:'B2',note:'Whose указывает на принадлежность в определительном придаточном.'},
+  {parts:['By the time we arrived, they ',' for over three hours.'],ans:'had been waiting',opts:['had been waiting','were waiting','have been waiting','had waited'],lvl:'B2',note:'Past Perfect Continuous для длительного действия до момента в прошлом.'},
+  {parts:['She looks exhausted — she ',' all night.'],ans:'must have been working',opts:['must have been working','cannot have been working','did not need to work','should have worked'],lvl:'B2',note:'Модальный глагол дедукции о прошлом: must have been + Ving.'},
+  {parts:['Not until she read the letter ',' realize the truth.'],ans:'did she',opts:['did she','she did','had she','she had'],lvl:'C1',note:'Инверсия после отрицательного наречия Not until.'},
+  {parts:['',' I known about the traffic, I would have left earlier.'],ans:'Had',opts:['Had','If','Should','Were'],lvl:'C1',note:'Инверсия в условном предложении 3 типа вместо if.'},
+  {parts:['If he ',' better at university, he would be earning more money now and would not be job-hunting today.'],ans:'had performed',opts:['had performed','performed','would perform','has performed'],lvl:'C1',note:'Смешанное условное на три временных плана.'},
+  {parts:['You ',' so rude to your sister — she was only trying to help.'],ans:'should not have been',opts:['should not have been','could not have been','must not have been','need not have been'],lvl:'C1',note:'Модальный глагол в прошлом: критика прошлого действия.'},
+  {parts:['What I need right now ',' a long holiday.'],ans:'is',opts:['is','was','be','are'],lvl:'C1',note:'Расщеплённое предложение (cleft sentence) с What.'},
+  {parts:['If only I ',' him the truth earlier instead of hiding it.'],ans:'had told',opts:['had told','told','would tell','have told'],lvl:'C1',note:'If only + Past Perfect — сожаление о прошлом.'},
+  {parts:['So exhausted ',' after the marathon that she fell asleep instantly.'],ans:'was she',opts:['was she','she was','did she','she did'],lvl:'C1',note:'Инверсия после So + прилагательное.'},
+  {parts:['He passed the exam, and so ',' his classmates.'],ans:'did',opts:['did','have','were','do'],lvl:'C2',note:'Эллипсис/замещение: so + вспомогательный глагол, согласованный по времени.'},
+  {parts:['It is essential that every applicant ',' the deadline strictly.'],ans:'observe',opts:['observe','observes','observed','will observe'],lvl:'C2',note:'Сослагательное наклонение в официальном стиле: базовая форма глагола.'},
+  {parts:['',' was the level of security that no one could enter without three separate checks.'],ans:'Such',opts:['Such','So','Very','Too'],lvl:'C2',note:'Вынесение Such вперёд для эмфазы.'},
+  {parts:['',' how to respond, she remained silent.'],ans:'Not knowing',opts:['Not knowing','Not to know','Knowing not','Not known'],lvl:'C2',note:'Отрицательный причастный оборот в начале предложения.'},
+  {parts:['The board ',' that immediate action be taken to address the crisis.'],ans:'insisted',opts:['insisted','said','mentioned','told'],lvl:'C2',note:'Глагол требования вызывает сослагательное наклонение (be taken).'},
+  {parts:['',' could I have imagined the impact this decision would have on my life.'],ans:'Little',opts:['Little','A little','Small','Few'],lvl:'C2',note:'Риторическая инверсия: Little + инверсия для эмфазы.'}
+];
+
+const BUILD_SENTENCES = [
+  {words:['I','like','apples'],lvl:'A1'},
+  {words:['She','is','a','teacher'],lvl:'A1'},
+  {words:['We','go','to','school'],lvl:'A1'},
+  {words:['The','cat','is','sleeping'],lvl:'A1'},
+  {words:['He','can','swim','well'],lvl:'A2'},
+  {words:['They','are','my','friends'],lvl:'A2'},
+  {words:['I','want','to','improve','my','English'],lvl:'B1'},
+  {words:['She','has','a','lot','of','experience'],lvl:'B1'},
+  {words:['The','book','that','I','borrowed','from','the','library','was','fascinating'],lvl:'B2'},
+  {words:['She','was','given','a','promotion','after','years','of','hard','work'],lvl:'B2'},
+  {words:['He','asked','her','what','time','the','meeting','would','start'],lvl:'B2'},
+  {words:['By','the','time','we','got','there','the','film','had','already','started'],lvl:'B2'},
+  {words:['Unless','you','apologize','to','her','she','will','not','forgive','you'],lvl:'B2'},
+  {words:['Rarely','have','I','witnessed','such','an','inspiring','performance'],lvl:'C1',note:'Инверсия после отрицательного наречия частоты Rarely.'},
+  {words:['Had','I','known','about','the','delay','I','would','have','booked','a','different','flight'],lvl:'C1',note:'Инверсия в условном предложении 3 типа (Had вместо if).'},
+  {words:['Not','until','the','results','arrived','did','she','feel','relieved'],lvl:'C1',note:'Инверсия после Not until.'},
+  {words:['What','she','really','wanted','was','a','little','peace','and','quiet'],lvl:'C1',note:'Расщеплённое предложение (cleft sentence) с What.'},
+  {words:['So','tired','was','he','that','he','fell','asleep','at','his','desk'],lvl:'C1',note:'Инверсия после So + прилагательное.'},
+  {words:['Neither','did','he','apologize','nor','did','he','offer','any','explanation'],lvl:'C2',note:'Эллипсис и инверсия с Neither...nor.'},
+  {words:['It','is','vital','that','the','committee','remain','impartial'],lvl:'C2',note:'Сослагательное наклонение в формальном регистре.'},
+  {words:['Such','was','her','determination','that','nothing','could','stop','her'],lvl:'C2',note:'Вынесение Such вперёд для эмфазы.'},
+  {words:['The','meeting','having','ended','early','the','staff','left','the','building'],lvl:'C2',note:'Абсолютная причастная конструкция.'},
+  {words:['Little','did','they','realize','how','much','their','lives','were','about','to','change'],lvl:'C2',note:'Риторическая инверсия Little did...'}
+];
+
+const CEFR_INFO = {
+  A1:{name:'A1 — Beginner',desc:'Первые слова и фразы',threshold:0},
+  A2:{name:'A2 — Elementary',desc:'Повседневные темы',threshold:150},
+  B1:{name:'B1 — Intermediate',desc:'Более сложная лексика',threshold:400},
+  B2:{name:'B2 — Upper-Intermediate',desc:'Свободное общение на разные темы',threshold:800},
+  C1:{name:'C1 — Advanced',desc:'Сложные грамматические конструкции',threshold:1300},
+  C2:{name:'C2 — Proficiency',desc:'Владение языком на уровне носителя',threshold:2000}
+};
+
+/* =============== GRAMMAR DATA (A2–C1) =============== */
+// each exercise: sentence split around the blank, options, answer, explanation{mistake,rule,example}
+const GRAMMAR_TOPICS = {
+  A2:[
+    {id:'a2-tense',name:'Present Simple vs Continuous',desc:'Привычки vs действия сейчас',
+      exercises:[
+        {parts:['Look! It ','outside.'],ans:'is raining',opts:['rains','is raining','rained','rain'],
+          explain:{mistake:'Present Simple используется для привычек и фактов, но здесь действие происходит прямо сейчас (сигнал «Look!»).',rule:'Present Continuous (am/is/are + Ving) — для действий в момент речи.',example:'She is reading a book right now.'}},
+        {parts:['Water ',' at 100 degrees Celsius.'],ans:'boils',opts:['boils','is boiling','boiled','boil'],
+          explain:{mistake:'Continuous подходит для временных действий, а не для постоянных фактов и законов природы.',rule:'Present Simple — для общих истин, фактов и научных закономерностей.',example:'The sun rises in the east.'}},
+        {parts:['I usually ',' coffee, but today I am drinking tea.'],ans:'drink',opts:['drink','am drinking','drank','drinking'],
+          explain:{mistake:'Слово «usually» указывает на привычку, а не на разовое исключение из второй части предложения.',rule:'Present Simple используется с наречиями частотности (usually, often, always) для регулярных действий.',example:'He usually walks to work.'}}
+      ]},
+    {id:'a2-past',name:'Past Simple',desc:'Законченные действия в прошлом',
+      exercises:[
+        {parts:['She ',' to Paris last summer.'],ans:'went',opts:['go','goes','went','going'],
+          explain:{mistake:'Маркер «last summer» указывает на конкретное завершённое время в прошлом.',rule:'Past Simple образуется через вторую форму глагола (go → went) для законченных действий.',example:'They visited Rome two years ago.'}},
+        {parts:['Did you ',' the movie yesterday?'],ans:'watch',opts:['watch','watched','watches','watching'],
+          explain:{mistake:'После вспомогательного глагола did смысловой глагол всегда стоит в базовой форме, без -ed и без -s.',rule:'Did + subject + base verb — стандартная структура вопроса в Past Simple.',example:'Did she call you yesterday?'}},
+        {parts:['They ',' not finish the project on time.'],ans:'did',opts:['did','does','do','was'],
+          explain:{mistake:'Отрицание в Past Simple строится с did not, а не с формой прошедшего времени смыслового глагола.',rule:'Did not (didn\'t) + base verb — отрицание в прошедшем времени.',example:'We didn\'t see the message.'}}
+      ]},
+    {id:'a2-comp',name:'Comparatives & Superlatives',desc:'Сравнение прилагательных',
+      exercises:[
+        {parts:['This book is ',' than that one.'],ans:'more interesting',opts:['interesting','more interesting','most interesting','interestinger'],
+          explain:{mistake:'Длинные прилагательные (3+ слога) не получают окончание -er.',rule:'Для длинных прилагательных сравнительная степень образуется через more + прилагательное.',example:'This film is more exciting than the last one.'}},
+        {parts:['Mount Everest is ',' mountain in the world.'],ans:'the highest',opts:['the higher','the highest','higher','high'],
+          explain:{mistake:'Сравнительная степень (higher) сравнивает два объекта, а здесь нужно выделить один из всех.',rule:'Превосходная степень the + прилагательное + -est выделяет объект среди множества.',example:'She is the tallest student in the class.'}},
+        {parts:['My sister is ',' than me.'],ans:'taller',opts:['tall','taller','tallest','more tall'],
+          explain:{mistake:'Короткое прилагательное (1 слог) не используется с more; здесь также сравниваются только два человека, а не выделяется один среди многих.',rule:'Короткие прилагательные образуют сравнительную степень через -er.',example:'He is stronger than his brother.'}}
+      ]}
+  ],
+  B1:[
+    {id:'b1-pp',name:'Present Perfect vs Past Simple',desc:'Связь с настоящим vs точное время',
+      exercises:[
+        {parts:['I ',' this film already.'],ans:'have watched',opts:['watched','have watched','watch','was watching'],
+          explain:{mistake:'Нет указания на конкретное время в прошлом, зато есть слово already, показывающее связь с настоящим.',rule:'Present Perfect (have/has + V3) — для действий без точного времени, но важных сейчас.',example:'She has finished her homework.'}},
+        {parts:['I ',' this film last night.'],ans:'watched',opts:['have watched','watched','watch','was watch'],
+          explain:{mistake:'Present Perfect нельзя использовать с указанием точного времени, как «last night».',rule:'Past Simple — когда указано конкретное время действия в прошлом.',example:'We met him yesterday.'}},
+        {parts:['She ',' in London since 2019.'],ans:'has lived',opts:['lived','has lived','lives','was living'],
+          explain:{mistake:'Слово since указывает на начало периода, который продолжается до настоящего момента.',rule:'Present Perfect используется с since/for для действий, начавшихся в прошлом и продолжающихся сейчас.',example:'They have worked here for five years.'}}
+      ]},
+    {id:'b1-cond',name:'Conditionals 0–2',desc:'Условные предложения',
+      exercises:[
+        {parts:['If you heat ice, it ','.'],ans:'melts',opts:['melts','will melt','melted','would melt'],
+          explain:{mistake:'Это универсальный физический факт, а не единичное будущее событие.',rule:'Zero Conditional: If + Present Simple, Present Simple — для законов природы и общих истин.',example:'If you mix red and blue, you get purple.'}},
+        {parts:['If it rains tomorrow, we ',' stay home.'],ans:'will',opts:['will','would','did','are'],
+          explain:{mistake:'Would используется для гипотетических/нереальных ситуаций, а здесь речь о вполне реальной возможности в будущем.',rule:'First Conditional: If + Present Simple, will + base verb — для реальных будущих условий.',example:'If she calls, I will answer.'}},
+        {parts:['If I ',' rich, I would travel the world.'],ans:'were',opts:['am','was','were','be'],
+          explain:{mistake:'В формальном Second Conditional с I/he/she/it традиционно используется were, а не was, хотя was тоже встречается в разговорной речи.',rule:'Second Conditional: If + Past Simple (were для всех лиц), would + base verb — для гипотетических ситуаций в настоящем.',example:'If I were you, I would apologize.'}}
+      ]},
+    {id:'b1-pass',name:'Passive Voice',desc:'Пассивный залог',
+      exercises:[
+        {parts:['The letter ',' yesterday.'],ans:'was sent',opts:['was sent','sent','is sent','has sent'],
+          explain:{mistake:'Подлежащее «letter» не совершает действие само, а получает его — значит, нужен пассив, а не активный залог.',rule:'Passive: be (в нужном времени) + V3. Прошедшее время + конкретный момент → was/were + V3.',example:'The house was built in 1990.'}},
+        {parts:['English ',' all over the world.'],ans:'is spoken',opts:['speaks','is spoken','spoke','was speaking'],
+          explain:{mistake:'English не «говорит» — на нём говорят, поэтому действие направлено на подлежащее.',rule:'Present Simple Passive: am/is/are + V3 — для общих фактов в пассиве.',example:'This product is made in Germany.'}},
+        {parts:['The book ',' by millions of people.'],ans:'has been read',opts:['has read','has been read','read','is reading'],
+          explain:{mistake:'Has read — активный залог (книга сама «прочитала»), что не имеет смысла; нужен пассив с уже завершённым результатом.',rule:'Present Perfect Passive: has/have been + V3.',example:'The email has been sent to everyone.'}}
+      ]}
+  ],
+  B2:[
+    {id:'b2-cond',name:'Third & Mixed Conditionals',desc:'Прошлое, которое нельзя изменить',
+      exercises:[
+        {parts:['If she ',' harder, she would have passed the exam.'],ans:'had studied',opts:['studied','had studied','studies','would study'],
+          explain:{mistake:'Обычный Past Simple используется во втором условном (гипотезы о настоящем), а здесь речь о нереальном условии в прошлом.',rule:'Third Conditional: If + Past Perfect, would have + V3 — сожаление о прошлом, которое уже нельзя изменить.',example:'If we had left earlier, we would have caught the train.'}},
+        {parts:['If he ',' that job, he would be much happier now.'],ans:'hadn\'t taken',opts:['didn\'t take','hadn\'t taken','doesn\'t take','wasn\'t taking'],
+          explain:{mistake:'Условие относится к прошлому решению, а результат — к настоящему, поэтому нужна смешанная конструкция, а не простое прошедшее время.',rule:'Mixed Conditional: If + Past Perfect, would + base verb — прошлое условие → результат в настоящем.',example:'If I hadn\'t missed the flight, I would be at the conference now.'}},
+        {parts:['If we ',' earlier, we wouldn\'t be stuck in traffic now.'],ans:'had left',opts:['left','had left','leave','would leave'],
+          explain:{mistake:'Left (Past Simple) недостаточно для выражения нереального условия в прошлом с последствием в настоящем.',rule:'В смешанном условном первая часть всегда Past Perfect, даже если следствие — в настоящем.',example:'If she had saved money, she wouldn\'t need a loan now.'}}
+      ]},
+    {id:'b2-modal',name:'Modal Verbs of Deduction',desc:'Логические предположения',
+      exercises:[
+        {parts:['She\'s not answering her phone — she ',' be asleep.'],ans:'must',opts:['must','can','should','would'],
+          explain:{mistake:'Can выражает возможность в общем смысле, а не уверенный логический вывод из ситуации.',rule:'Must — для уверенного положительного предположения на основе очевидных фактов.',example:'The lights are off — they must be out.'}},
+        {parts:['He ',' have finished already; he only started five minutes ago.'],ans:'can\'t',opts:['must','can\'t','should','might'],
+          explain:{mistake:'Must have — уверенность в том, что что-то произошло, но контекст (начал 5 минут назад) логически это исключает.',rule:'Can\'t have + V3 — уверенное отрицательное предположение о прошлом.',example:'She can\'t have left already; her coat is still here.'}},
+        {parts:['They ',' have left already — their car is still here.'],ans:'can\'t',opts:['can\'t','must','should','could'],
+          explain:{mistake:'Must have выражало бы уверенность в обратном, что противоречит факту (машина на месте).',rule:'Can\'t have + V3 используется, когда факты явно опровергают возможность события.',example:'He can\'t have forgotten — I just reminded him.'}}
+      ]},
+    {id:'b2-rel',name:'Relative Clauses',desc:'Придаточные определительные',
+      exercises:[
+        {parts:['The man ',' car was stolen called the police.'],ans:'whose',opts:['who','whose','which','whom'],
+          explain:{mistake:'Who относится к людям как к подлежащему/дополнению, но здесь нужно показать принадлежность (машина мужчины).',rule:'Whose используется для выражения принадлежности, независимо от того, к человеку или предмету оно относится.',example:'That\'s the girl whose brother is a doctor.'}},
+        {parts:['This is the restaurant ',' we met for the first time.'],ans:'where',opts:['who','whose','where','which'],
+          explain:{mistake:'Which обычно заменяет подлежащее/дополнение, а не обстоятельство места.',rule:'Where используется для придаточных, описывающих место.',example:'This is the town where I was born.'}},
+        {parts:['She is the woman ',' helped me yesterday.'],ans:'who',opts:['which','whose','who','whom'],
+          explain:{mistake:'Which используется для предметов и животных, а не для людей в роли подлежащего придаточного.',rule:'Who заменяет подлежащее, когда речь о людях.',example:'He is the man who called you.'}}
+      ]}
+  ],
+  C1:[
+    {id:'c1-inv',name:'Inversion',desc:'Инверсия для акцента',
+      exercises:[
+        {parts:['Not only ',' the deadline, but she also improved the whole report.'],ans:'did she meet',opts:['she met','did she meet','she did meet','met she'],
+          explain:{mistake:'После отрицательного наречия в начале предложения (Not only) порядок слов должен быть вопросительным (инверсия), а не обычным утвердительным.',rule:'Not only + вспомогательный глагол + подлежащее + смысловой глагол.',example:'Not only did he apologize, but he also brought flowers.'}},
+        {parts:['',' I known, I would have told you.'],ans:'Had',opts:['If','Had','Should','Did'],
+          explain:{mistake:'If здесь возможен, но при инверсии в третьем условном если убирается и заменяется на Had в начале.',rule:'Had + subject + V3 = альтернатива If + subject + had + V3 в формальном стиле.',example:'Had we left earlier, we wouldn\'t have missed the train.'}},
+        {parts:['Rarely ',' such dedication in a new employee.'],ans:'do we see',opts:['we see','do we see','we saw','did we see'],
+          explain:{mistake:'Rarely в начале предложения — отрицательное наречие частоты, требующее инверсии, а обычный порядок слов здесь неверен.',rule:'Rarely/Never/Seldom + вспомогательный глагол + подлежащее + смысловой глагол.',example:'Never have I seen such a beautiful sunset.'}}
+      ]},
+    {id:'c1-mix',name:'Advanced Structures',desc:'Причастные обороты, wish, it\'s time',
+      exercises:[
+        {parts:['',' so late, we missed the train.'],ans:'Having arrived',opts:['Having arrived','Arrived','Having arrive','Arrive'],
+          explain:{mistake:'Простая форма arrived не показывает, что действие произошло раньше главного (опоздание предшествует пропуску поезда).',rule:'Having + V3 — причастный оборот для действия, завершённого до главного действия.',example:'Having finished the report, she went home.'}},
+        {parts:['I wish I ',' more attention in class.'],ans:'had paid',opts:['paid','had paid','would pay','have paid'],
+          explain:{mistake:'Paid (Past Simple) выражало бы сожаление о настоящем, а не о прошлом действии, которое уже нельзя изменить.',rule:'Wish + Past Perfect — сожаление о том, что произошло (или не произошло) в прошлом.',example:'I wish I had studied harder for the exam.'}},
+        {parts:['It\'s high time we ',' a decision.'],ans:'made',opts:['make','made','have made','will make'],
+          explain:{mistake:'После it\'s (high) time используется форма прошедшего времени по смыслу настоящего/будущего действия, а не базовая форма.',rule:'It\'s (high) time + subject + Past Simple — выражает, что пора что-то сделать.',example:'It\'s time we left for the airport.'}}
+      ]},
+    {id:'c1-emp',name:'Emphasis & Cleft Sentences',desc:'Выделение через what/it',
+      exercises:[
+        {parts:['What I really need ',' a good night\'s sleep.'],ans:'is',opts:['is','are','was','be'],
+          explain:{mistake:'Подлежащее придаточного «What I really need» грамматически единственное число, поэтому глагол согласуется в единственном числе, а не по смыслу дополнения.',rule:'В расщеплённых предложениях (What... is) глагол согласуется с самим оборотом What..., а не с существительным после is.',example:'What surprised me most was her honesty.'}},
+        {parts:['It was John ',' broke the vase, not me.'],ans:'who',opts:['whom','who','which','whose'],
+          explain:{mistake:'Which используется для предметов, а здесь выделяется человек (John) как подлежащее придаточного.',rule:'It was + человек + who + глагол — cleft-конструкция для выделения подлежащего.',example:'It was Anna who found the mistake.'}},
+        {parts:['It is not until you fail ',' you truly learn.'],ans:'that',opts:['that','when','then','as'],
+          explain:{mistake:'When/then не используются в этой формальной эмфатической конструкции с it is/was.',rule:'It is/was not until... that... — усилительная конструкция для выделения условия/времени.',example:'It was not until she moved abroad that she appreciated home.'}}
+      ]}
+  ]
+};
+
+/* =============== READING DATA (B1–C2) =============== */
+const READING_TEXTS = [
+{
+  id:'b1-procrastination', lvl:'B1', title:'Why We Put Things Off', words:300,
+  paragraphs:[
+    "Almost everyone has left an important task until the very last moment. You know the deadline is close, but somehow you find yourself cleaning the kitchen, checking your phone, or watching another video instead of starting. This common habit is called procrastination, and researchers say it affects most people at some point in their lives.",
+    "Many people believe procrastination happens because we are lazy, but psychologists explain it differently. The real reason is often about emotions, not time management. When a task feels boring, difficult, or stressful, our brain looks for a quick reward instead. Checking social media gives an instant feeling of pleasure, while starting a big project does not. This is why we choose the easy distraction over the harder task, even when we know it will cause problems later.",
+    "Procrastination also has a strong connection to guilt. After avoiding a task, people often feel worse about themselves, which makes the task feel even more unpleasant. This creates a cycle: stress leads to avoidance, avoidance leads to guilt, and guilt leads to more stress. Breaking this cycle is not easy, but experts suggest simple strategies. One popular method is to start with just five minutes of work. Once you begin, the task usually feels less frightening than it did before you started.",
+    "Another useful idea is to remove distractions before you begin. Turning off notifications, closing extra tabs, and choosing a quiet place to work can make a real difference. Setting small, clear goals also helps because a huge project can feel overwhelming, but a five-minute step feels possible. Finally, rewarding yourself after finishing a task — even with something small — can train your brain to associate work with a positive outcome instead of stress.",
+    "Procrastination will probably never disappear completely, since human brains are wired to prefer comfort over difficulty. But by understanding why we delay, we can build better habits and reduce the guilt that often follows."
+  ],
+  vocab:[
+    {w:'procrastination',ru:'откладывание дел, прокрастинация',def:'the habit of delaying something that needs to be done',ex:'His procrastination meant the report was late again.',syn:'delay'},
+    {w:'deadline',ru:'крайний срок',def:'the latest time by which something must be finished',ex:'We have to submit the form before the deadline.'},
+    {w:'distraction',ru:'отвлечение',def:'something that takes your attention away from what you should be doing',ex:'My phone is a constant distraction when I study.'},
+    {w:'guilt',ru:'чувство вины',def:'a feeling of having done something wrong',ex:'She felt guilt after missing the meeting.'},
+    {w:'avoidance',ru:'избегание',def:'the act of staying away from something',ex:'Avoidance of the problem only made it worse.'},
+    {w:'overwhelming',ru:'подавляющий, непосильный',def:'so large or difficult that it is hard to deal with',ex:'The workload felt overwhelming at first.',syn:'overpowering'},
+    {w:'reward',ru:'награда',def:'something given in return for effort or achievement',ex:'A cup of coffee was her reward for finishing the essay.'},
+    {w:'habit',ru:'привычка',def:'something you do regularly, often without thinking',ex:'Checking email first thing is a bad habit for many people.'}
+  ],
+  questions:[
+    {type:'mc',skill:'main_idea',prompt:'What is the text mainly about?',
+      opts:['Reasons for procrastination and how to reduce it','A history of time management','Why deadlines are unfair','How technology causes stress'],
+      ans:'Reasons for procrastination and how to reduce it',
+      exCorrect:'The whole text explains the psychological causes of procrastination and offers practical strategies to deal with it.',
+      exWrong:'Paragraphs 2–4 focus on why we delay tasks (emotions, distraction) and on strategies to reduce it — not on deadlines, history, or technology in general.'},
+    {type:'mc',skill:'details',prompt:'Why do people choose distractions over difficult tasks, according to the text?',
+      opts:["They don't understand the task",'Distractions give an instant feeling of pleasure','They dislike their job','Tasks always take too long'],
+      ans:'Distractions give an instant feeling of pleasure',
+      exCorrect:'Paragraph 2 states that checking social media gives instant pleasure, which the brain prefers over a harder task.',
+      exWrong:'Paragraph 2 explains that the brain seeks a "quick reward" — distractions feel good immediately, unlike starting a demanding task.'},
+    {type:'tfng',skill:'details',prompt:'"Procrastination is caused mainly by laziness." — according to the text, is this True, False, or Not Given?',
+      opts:['True','False','Not Given'], ans:'False',
+      exCorrect:'The text directly says psychologists explain procrastination differently from laziness — it is about emotions, not character.',
+      exWrong:'Paragraph 2 says "Many people believe procrastination happens because we are lazy, but psychologists explain it differently," which contradicts the statement.'},
+    {type:'tfng',skill:'details',prompt:'"A five-minute start can make a task feel easier." — True, False, or Not Given?',
+      opts:['True','False','Not Given'], ans:'True',
+      exCorrect:'Paragraph 3 says once you begin, even briefly, the task usually feels less frightening.',
+      exWrong:'Look again at paragraph 3: starting with five minutes of work is described as making the task feel "less frightening than it did before."'},
+    {type:'vocab',skill:'vocabulary',prompt:'In paragraph 3, the word "cycle" most likely means...',
+      opts:['a bicycle','a repeating pattern','a time period','an argument'], ans:'a repeating pattern',
+      exCorrect:'The text describes stress → avoidance → guilt → more stress, which is exactly a pattern that repeats itself — a cycle.',
+      exWrong:'Re-read the sentence: it lists stress, avoidance, and guilt feeding back into each other, which is the meaning of "a repeating pattern," not a literal bicycle or time period.'},
+    {type:'mc',skill:'inference',prompt:"What can we infer about the author's view on removing distractions before working?",
+      opts:['It is unnecessary','It can genuinely help reduce procrastination','It is impossible in modern life','It only works for students'],
+      ans:'It can genuinely help reduce procrastination',
+      exCorrect:'The author lists this as one of several concrete, recommended strategies, implying it is a useful and realistic step.',
+      exWrong:'Paragraph 4 presents removing distractions as a practical, positive suggestion ("can make a real difference"), not as impossible or pointless.'},
+    {type:'gap',skill:'details',prompt:'Fill the gap: "Setting small, clear ___ also helps because a huge project can feel overwhelming."',
+      opts:['goals','rules','rewards','deadlines'], ans:'goals',
+      exCorrect:'The sentence in paragraph 4 talks about breaking a big project into small, achievable goals.',
+      exWrong:'Check paragraph 4 again — the sentence is specifically about "small, clear goals," not rules, rewards, or deadlines.'},
+    {type:'mc',skill:'author_purpose',prompt:'Why did the author most likely write this text?',
+      opts:['To criticize people who procrastinate','To explain the psychology of procrastination and offer practical solutions','To advertise a productivity app','To complain about deadlines'],
+      ans:'To explain the psychology of procrastination and offer practical solutions',
+      exCorrect:'The text is structured as explanation (why it happens) followed by advice (what to do about it) — a teaching purpose, not criticism or advertising.',
+      exWrong:'There is no product mentioned and no blame directed at readers — the tone throughout is explanatory and helpful, aimed at understanding and improvement.'}
+  ]
+},
+{
+  id:'b2-remote-work', lvl:'B2', title:'Working From Anywhere', words:450,
+  paragraphs:[
+    "A decade ago, working from home was seen as a rare privilege, something reserved for freelancers or a handful of tech employees. Today, remote and hybrid work have become part of everyday life for millions of people, and the shift has changed not only where we work, but how we think about work itself.",
+    "Supporters of remote work point to obvious benefits. Without a daily commute, employees save hours every week, hours that can be spent with family, exercising, or simply resting. Many workers also report higher productivity when they can choose their own environment instead of an open-plan office full of interruptions. Companies, meanwhile, save money on office space and often gain access to talent far beyond their local city, since location no longer limits who they can hire.",
+    "Yet the picture is more complicated than it first appears. Several studies suggest that while individual tasks may get done faster at home, collaboration and creativity can suffer. It is harder to have a spontaneous conversation with a colleague through a screen than across a desk, and many employees admit that idea-generation feels slower in fully remote teams. There is also a psychological cost: without the natural boundary of leaving an office, some people find it difficult to stop working, checking messages late into the evening. This blurring of boundaries between work and personal life has been linked to rising rates of burnout.",
+    "Hybrid work, a mix of office and home days, has emerged as a popular compromise. Employees get autonomy over part of their week while still coming together in person for meetings that benefit from face-to-face contact. However, hybrid arrangements bring their own challenges. Managers must learn to evaluate performance by results rather than by who they can see at their desk, and teams need clear rules about which days are for collaboration and which are for focused, independent work.",
+    "What seems clear is that there is no single model that suits every company or every employee. Some thrive with total flexibility; others need the structure and social contact of an office. As organizations continue to experiment, the most successful ones may be those willing to treat work arrangements not as a fixed policy, but as something to keep adjusting based on what actually helps people do their best work."
+  ],
+  vocab:[
+    {w:'commute',ru:'ездить на работу',def:'the journey between home and work',ex:'Her commute takes almost an hour each way.'},
+    {w:'productivity',ru:'продуктивность',def:'how efficiently work gets done',ex:'The new schedule improved team productivity.'},
+    {w:'collaboration',ru:'сотрудничество',def:'working together with others to achieve something',ex:'Good collaboration made the project succeed.'},
+    {w:'spontaneous',ru:'спонтанный',def:'happening naturally, without planning',ex:'They had a spontaneous chat by the coffee machine.'},
+    {w:'boundary',ru:'граница, предел',def:'a limit that separates two things, e.g. work and free time',ex:'It is important to set boundaries between work and rest.'},
+    {w:'burnout',ru:'эмоциональное выгорание',def:'a state of physical or emotional exhaustion caused by prolonged stress',ex:'He took a month off to recover from burnout.'},
+    {w:'hybrid',ru:'гибридный',def:'combining two different approaches or elements',ex:'Our company follows a hybrid work model.'},
+    {w:'autonomy',ru:'самостоятельность, автономия',def:'the freedom to make your own decisions',ex:'She values the autonomy of choosing her own hours.'},
+    {w:'arrangement',ru:'договорённость, устройство',def:'a plan or agreement about how something will be organized',ex:'They reached a flexible arrangement about working hours.'}
+  ],
+  questions:[
+    {type:'mc',skill:'main_idea',prompt:'What is the main idea of the text?',
+      opts:['Remote work is always better than office work','Remote and hybrid work bring both benefits and challenges, and no single model fits everyone','Companies should stop offering remote work','Commuting is the biggest problem in modern work'],
+      ans:'Remote and hybrid work bring both benefits and challenges, and no single model fits everyone',
+      exCorrect:'The text weighs advantages (paragraph 2) against drawbacks (paragraph 3) and concludes that models should be adapted, not fixed.',
+      exWrong:'The final paragraph explicitly says "there is no single model that suits every company," which rules out an absolute claim that remote work is simply better or worse.'},
+    {type:'mc',skill:'details',prompt:'According to paragraph 2, why do companies benefit from remote work?',
+      opts:['They can hire employees from anywhere and save on office costs','Employees work fewer hours','It removes the need for meetings','It guarantees higher creativity'],
+      ans:'They can hire employees from anywhere and save on office costs',
+      exCorrect:'Paragraph 2 mentions saved office space costs and access to talent beyond the local city.',
+      exWrong:'Re-check paragraph 2: it never claims fewer hours, no meetings, or guaranteed creativity — those points actually relate to paragraph 3\'s concerns.'},
+    {type:'tfng',skill:'details',prompt:'"The text states that collaboration is always easier when working remotely." True, False, or Not Given?',
+      opts:['True','False','Not Given'], ans:'False',
+      exCorrect:'Paragraph 3 explicitly says collaboration and creativity "can suffer" remotely.',
+      exWrong:'The text says the opposite: spontaneous conversation is described as "harder... through a screen than across a desk."'},
+    {type:'tfng',skill:'details',prompt:'"The text mentions that companies must offer unlimited vacation for hybrid work to succeed." True, False, or Not Given?',
+      opts:['True','False','Not Given'], ans:'Not Given',
+      exCorrect:'Vacation policy is never mentioned anywhere in the text.',
+      exWrong:'Scan the text again — it discusses commuting, collaboration, burnout, and management style, but never vacation days.'},
+    {type:'vocab',skill:'vocabulary',prompt:'In paragraph 3, "blurring" most likely means...',
+      opts:['making unclear or mixed together','making brighter','removing completely','strengthening'], ans:'making unclear or mixed together',
+      exCorrect:'The sentence describes work and personal life boundaries becoming less distinct, which fits "making unclear or mixed together."',
+      exWrong:'The phrase "blurring of boundaries" describes lines becoming less clear, similar to a blurry photo — not brightness or removal.'},
+    {type:'mc',skill:'inference',prompt:'What can be inferred about managers in hybrid teams?',
+      opts:['They no longer need to evaluate performance','They must change how they judge employees\' work','They should require everyone in the office daily','They have less responsibility than before'],
+      ans:'They must change how they judge employees\' work',
+      exCorrect:'Paragraph 4 says managers "must learn to evaluate performance by results rather than by who they can see at their desk" — a clear shift in approach.',
+      exWrong:'The text does not suggest less responsibility or full-time office requirements; it specifically calls for a new way of measuring performance.'},
+    {type:'mc',skill:'author_purpose',prompt:'Why did the author most likely write this text?',
+      opts:['To promote one particular work model','To present a balanced view of remote and hybrid work\'s advantages and challenges','To criticize employees who prefer offices','To advertise a coworking company'],
+      ans:'To present a balanced view of remote and hybrid work\'s advantages and challenges',
+      exCorrect:'Both benefits and drawbacks are discussed evenly, and the conclusion avoids favoring one fixed approach.',
+      exWrong:'There is no promotion of a single company or model — the tone stays analytical, weighing pros and cons rather than pushing an opinion.'},
+    {type:'gap',skill:'details',prompt:'Fill the gap: "Some people find it difficult to stop working, checking messages late into the ___."',
+      opts:['evening','morning','meeting','commute'], ans:'evening',
+      exCorrect:'Paragraph 3 describes this as a psychological cost linked to weaker work-life boundaries in the evening.',
+      exWrong:'Check paragraph 3 — the exact phrase is about checking messages "late into the evening," not the morning or during a commute.'}
+  ]
+},
+{
+  id:'c1-choice', lvl:'C1', title:'Too Many Choices', words:620,
+  paragraphs:[
+    "Modern life offers an extraordinary range of options. A single supermarket aisle may display dozens of types of cereal; a streaming service can offer thousands of films at the click of a button. Conventional wisdom suggests that more choice should make us happier, since freedom to select exactly what we want seems like an obvious good. Yet a growing body of research points to a counterintuitive conclusion: beyond a certain point, additional options can actually make us less satisfied, not more.",
+    "This phenomenon, sometimes called the paradox of choice, unfolds through several psychological mechanisms. The first is the sheer cognitive burden of comparison. When faced with two or three options, a decision is relatively simple; when faced with thirty, the mental effort required to evaluate each alternative grows dramatically, often to the point where people abandon the decision altogether or choose almost at random just to escape the overwhelm.",
+    "The second mechanism concerns regret. With few alternatives, it is easy to feel content with whatever you picked, because there was little else you could have chosen instead. With many alternatives, however, every unchosen option becomes a potential source of doubt. Did the sweater you bought outperform the nineteen others on the rack? Could that unopened path have led somewhere better? Psychologists have found that this nagging sense of missed alternatives, even for trivial purchases, can quietly erode satisfaction with decisions that would otherwise seem perfectly reasonable.",
+    "A third factor is a shift in what researchers term expectations. When options multiply, we tend to assume that somewhere among them lies a perfect choice, and that a diligent enough search will uncover it. This assumption sets an impossibly high bar; ordinary satisfaction starts to feel like failure, since we compare our actual experience not against a realistic baseline but against an imagined ideal we never quite reach.",
+    "None of this means choice itself is undesirable. Having no options at all is unambiguously worse than having some, and autonomy remains central to wellbeing across cultures. The relationship between choice and satisfaction instead appears to resemble an inverted U: satisfaction rises as options increase from very few to a moderate number, then gradually declines as the array becomes overwhelming. Where exactly that peak sits differs from person to person and from decision to decision; choosing a life partner and choosing a brand of toothpaste clearly do not belong on the same curve.",
+    "One useful distinction researchers draw is between two decision-making styles: 'maximizers,' who try to evaluate every possible option before settling on the objectively best one, and 'satisficers,' who choose the first option that meets their own standard of good enough. Somewhat surprisingly, maximizers, despite their more thorough searches, tend to report lower satisfaction and even higher rates of regret than satisficers. The exhaustive effort of chasing an optimal outcome, it turns out, rarely pays off emotionally, even when it does yield a marginally superior result.",
+    "For anyone who feels quietly exhausted by the modern glut of options, the practical implication is not to reject choice but to manage it deliberately. Narrowing a search in advance, setting a reasonable time limit, and accepting a genuinely good option rather than hunting for a mythical perfect one can restore some of the satisfaction that abundance so often, paradoxically, takes away."
+  ],
+  vocab:[
+    {w:'paradox',ru:'парадокс',def:'a situation that seems contradictory but may still be true',ex:'It is a paradox that more freedom can lead to less happiness.'},
+    {w:'cognitive',ru:'когнитивный, познавательный',def:'related to mental processes like thinking and reasoning',ex:'The task requires a lot of cognitive effort.'},
+    {w:'regret',ru:'сожаление',def:'a feeling of sadness about something you did or didn\'t do',ex:'She felt regret about not taking the job.'},
+    {w:'erode',ru:'разъедать, постепенно разрушать',def:'to gradually wear away or weaken something',ex:'Constant criticism can erode a person\'s confidence.'},
+    {w:'autonomy',ru:'автономия, самостоятельность',def:'the freedom to act and make decisions independently',ex:'Employees value autonomy in how they organize their day.'},
+    {w:'inverted',ru:'перевёрнутый',def:'turned upside down or reversed in position',ex:'The graph shows an inverted U shape.'},
+    {w:'maximizer',ru:'максимизатор (тот, кто ищет лучший вариант)',def:'a person who tries to find the absolute best option before deciding',ex:'As a maximizer, he read fifty reviews before buying a laptop.'},
+    {w:'satisficer',ru:'человек, довольствующийся достаточным',def:'a person who chooses the first option good enough to meet their needs',ex:'As a satisficer, she picked the first hotel that met her basic criteria.'},
+    {w:'exhaustive',ru:'исчерпывающий, тщательный',def:'complete and thorough, covering every detail',ex:'They did an exhaustive search before choosing a contractor.'},
+    {w:'glut',ru:'избыток, изобилие',def:'an excessively large supply of something',ex:'There is a glut of streaming platforms these days.'}
+  ],
+  questions:[
+    {type:'mc',skill:'main_idea',prompt:'What is the central argument of the text?',
+      opts:['Choice should always be limited by governments','Beyond a certain point, having more options can reduce satisfaction rather than increase it','Maximizers always make better decisions than satisficers','Supermarkets should sell fewer products'],
+      ans:'Beyond a certain point, having more options can reduce satisfaction rather than increase it',
+      exCorrect:'This is stated directly in paragraph 1 and supported throughout by the mechanisms of cognitive burden, regret, and inflated expectations.',
+      exWrong:'The text never argues for government limits or fewer supermarket products — it explores a psychological pattern, not a policy proposal.'},
+    {type:'mc',skill:'details',prompt:'According to paragraph 2, why does a large number of options create difficulty?',
+      opts:['It costs more money','The mental effort of comparing many alternatives becomes overwhelming','People forget what they need','Stores organize products poorly'],
+      ans:'The mental effort of comparing many alternatives becomes overwhelming',
+      exCorrect:'The paragraph describes the "cognitive burden of comparison" growing dramatically as options increase.',
+      exWrong:'Cost, memory, and store organization are never mentioned — the paragraph is specifically about mental (cognitive) effort.'},
+    {type:'mc',skill:'inference',prompt:'What does the text imply about someone shopping for toothpaste versus choosing a life partner?',
+      opts:['Both decisions follow identical psychological patterns','The "ideal" amount of choice likely differs greatly between such decisions','Toothpaste decisions cause more regret','Life partners should be chosen quickly'],
+      ans:'The "ideal" amount of choice likely differs greatly between such decisions',
+      exCorrect:'Paragraph 5 explicitly contrasts these two examples to show the peak of the inverted-U curve varies by decision type.',
+      exWrong:'The text explicitly says these two decisions "clearly do not belong on the same curve," which directly implies the ideal amount of choice differs.'},
+    {type:'vocab',skill:'vocabulary',prompt:'In paragraph 3, "erode" most likely means...',
+      opts:['gradually wear away or weaken','suddenly destroy','strongly support','clearly explain'], ans:'gradually wear away or weaken',
+      exCorrect:'The sentence describes satisfaction being slowly undermined by ongoing doubt, which fits "gradually wear away."',
+      exWrong:'The context describes a slow, quiet process ("nagging sense... can quietly erode"), not a sudden or supportive action.'},
+    {type:'mc',skill:'author_purpose',prompt:"What is the author's attitude toward the idea that 'more choice equals more happiness'?",
+      opts:['Fully supportive','Skeptical, presenting evidence that complicates it','Neutral and uninterested','Dismissive without explanation'],
+      ans:'Skeptical, presenting evidence that complicates it',
+      exCorrect:'The author calls the common assumption "conventional wisdom" and then methodically presents research that challenges it, without dismissing choice altogether.',
+      exWrong:'The tone is analytical, not dismissive — the text carefully explains mechanisms and even defends the value of some choice, rather than rejecting the idea outright.'},
+    {type:'tfng',skill:'details',prompt:'"The text states that maximizers report higher satisfaction than satisficers." True, False, or Not Given?',
+      opts:['True','False','Not Given'], ans:'False',
+      exCorrect:'Paragraph 6 states the opposite: maximizers "tend to report lower satisfaction."',
+      exWrong:'Re-read paragraph 6 carefully: despite searching more thoroughly, maximizers report lower satisfaction and more regret than satisficers.'},
+    {type:'tfng',skill:'details',prompt:'"The text claims that having zero choices is better than having some choices." True, False, or Not Given?',
+      opts:['True','False','Not Given'], ans:'False',
+      exCorrect:'Paragraph 5 says "having no options at all is unambiguously worse than having some."',
+      exWrong:'The text explicitly reverses this claim — no choice is described as worse, not better, than having some choice.'},
+    {type:'mc',skill:'inference',prompt:"Why does the author mention 'maximizers' and 'satisficers'?",
+      opts:['To prove maximizers are lazier','To illustrate that a more exhaustive search does not necessarily lead to greater happiness','To recommend a specific shopping app','To argue satisficers make objectively worse decisions'],
+      ans:'To illustrate that a more exhaustive search does not necessarily lead to greater happiness',
+      exCorrect:'This comparison is used as evidence for the broader argument that thorough searching does not guarantee emotional satisfaction.',
+      exWrong:'The point is not about laziness or objective decision quality, but about the surprising gap between effort spent searching and satisfaction felt afterward.'}
+  ]
+},
+{
+  id:'c2-algorithms', lvl:'C2', title:'When Machines Decide', words:840,
+  paragraphs:[
+    "Algorithms now sit quietly behind an astonishing share of decisions that shape people's lives: which résumé reaches a human recruiter, which loan applications are approved, which defendants are deemed a flight risk, which news stories appear at the top of a feed. Their appeal to institutions is easy to understand. A well-designed model, the argument goes, applies the same criteria to every case, unswayed by fatigue, mood, or personal prejudice — qualities that make human judgment notoriously inconsistent. Yet the widespread assumption that automated decisions are therefore more objective than human ones deserves far more scrutiny than it typically receives.",
+    "The first problem is that algorithms are trained on historical data, and historical data is rarely neutral. If a hiring model learns from a decade of past hiring decisions in an industry that has long favored one demographic over another, the model will tend to reproduce that pattern, often with a veneer of mathematical authority that makes the bias harder to challenge than an individual manager's stated preference would be. The algorithm has not eliminated prejudice; it has merely absorbed it, encoded it, and applied it with newfound consistency and scale.",
+    "A second, subtler problem concerns the choices embedded in a model's design long before any data is involved. Every algorithm requires its creators to define what counts as a successful outcome, and that definition is itself a value judgment dressed up as a technical specification. A system built to predict which employees will be 'high performers,' for instance, must first decide how performance will be measured — sales figures, manager ratings, tenure — and each of these proxies carries its own distortions. Choosing one measure over another is not a neutral act of engineering; it is a decision about what an organization values, made invisible by the language of optimization.",
+    "Compounding both issues is the matter of opacity. Many of the most powerful modern models, particularly those built on large neural networks, do not offer a simple, human-readable explanation for any individual decision. Even the engineers who built the system frequently cannot say with confidence why a particular applicant was rejected, beyond gesturing at the thousands of parameters involved. This opacity creates a peculiar asymmetry of accountability: a human manager can, at least in principle, be asked to explain and defend a judgment, and that judgment can be appealed, scrutinized, and overturned. An opaque algorithmic verdict, by contrast, often arrives with an air of finality that discourages challenge, precisely because it appears too technically complex to contest.",
+    "None of this is an argument for abandoning algorithmic tools altogether. Used carefully, they can surface patterns that overworked, distracted, or genuinely biased humans miss, and consistency, whatever its flaws, is sometimes preferable to the wide variance of unaided human judgment. The point is rather that the perceived objectivity of an algorithm is not an inherent property of the technology; it is a claim that must be earned through transparency, ongoing scrutiny, and a willingness to interrogate the assumptions baked into the system from the start.",
+    "What would earning that claim actually require? At minimum, meaningful human oversight at points where an algorithmic recommendation carries serious consequences, so that a person retains genuine discretion rather than functioning as a rubber stamp for the machine's output. It would also require regular auditing of outcomes across different groups, not merely of the code itself, since a model can be flawless in its logic while still reproducing unjust patterns baked into its training data. Finally, it demands a cultural shift away from treating 'the algorithm said so' as a conversation-ending justification, and toward treating it as the beginning of a conversation about whether the system is actually serving the goals it claims to serve.",
+    "The deeper irony is that algorithms were, in many cases, introduced specifically to reduce the influence of arbitrary human bias, and in a narrow sense they can indeed do that: they are not moody, they do not discriminate on a whim, they apply the same formula every time. But consistency and objectivity are not synonyms. A system can be perfectly consistent while consistently encoding a distorted view of merit, risk, or worth. Recognizing that distinction is the first step toward using these powerful tools with the scrutiny they warrant, rather than the automatic deference they currently, and often unjustly, receive."
+  ],
+  vocab:[
+    {w:'scrutiny',ru:'тщательная проверка',def:'close, careful examination of something',ex:'The proposal came under close scrutiny before approval.'},
+    {w:'veneer',ru:'внешний лоск, видимость',def:'an attractive appearance that hides the true nature of something',ex:'Beneath a veneer of politeness, he was quite ruthless.'},
+    {w:'proxy',ru:'заместитель, косвенный показатель',def:'something used to represent or measure something else indirectly',ex:'Test scores are often used as a proxy for intelligence.'},
+    {w:'opacity',ru:'непрозрачность',def:'the quality of being difficult to see through or understand',ex:'The opacity of the process made it hard to trust.'},
+    {w:'accountability',ru:'подотчётность',def:'being responsible for one\'s actions and able to explain them',ex:'There is little accountability when decisions are automated.'},
+    {w:'discretion',ru:'право принимать решение, усмотрение',def:'the freedom to decide something based on one\'s own judgment',ex:'The judge used her discretion to reduce the sentence.'},
+    {w:'audit',ru:'проверка, аудит',def:'a systematic examination of records or processes',ex:'The company conducted an audit of its hiring outcomes.'},
+    {w:'deference',ru:'почтительное подчинение',def:'excessive respect or submission to someone/something\'s authority',ex:'Employees showed unquestioning deference to the new software.'}
+  ],
+  questions:[
+    {type:'mc',skill:'main_idea',prompt:'What is the main argument of the text?',
+      opts:['Algorithms should never be used in important decisions','Algorithms are only as objective as the data and design choices behind them, so their perceived neutrality deserves scrutiny','Human judgment is always superior to algorithmic judgment','Algorithms are completely free of bias because they use mathematics'],
+      ans:'Algorithms are only as objective as the data and design choices behind them, so their perceived neutrality deserves scrutiny',
+      exCorrect:'This is the thesis stated at the end of paragraph 1 and developed through the rest of the text via data bias, design choices, and opacity.',
+      exWrong:'Paragraph 5 explicitly rejects "abandoning algorithmic tools altogether," and the text argues against the idea that math automatically means fairness — so both extreme options are wrong.'},
+    {type:'mc',skill:'details',prompt:'According to paragraph 2, why can algorithms reproduce bias?',
+      opts:['They are trained on historical data that reflects past patterns and prejudices','They are programmed by biased engineers on purpose','They randomly generate unfair outcomes','They ignore data entirely'],
+      ans:'They are trained on historical data that reflects past patterns and prejudices',
+      exCorrect:'Paragraph 2 explains that models learn from historical data, which is "rarely neutral," and so reproduce past patterns.',
+      exWrong:'The paragraph does not claim intentional programming of bias or random outcomes — the mechanism described is learning from unrepresentative or biased historical data.'},
+    {type:'mc',skill:'inference',prompt:"What does the text imply about defining 'success' in a model, as discussed in paragraph 3?",
+      opts:['It is a purely technical, value-free process','It involves hidden value judgments disguised as technical decisions','It is always done fairly','It has no effect on outcomes'],
+      ans:'It involves hidden value judgments disguised as technical decisions',
+      exCorrect:'The paragraph states this definition "is itself a value judgment dressed up as a technical specification."',
+      exWrong:'The text directly contradicts the idea of a value-free process — it argues the opposite, that seemingly technical choices conceal judgments about what an organization values.'},
+    {type:'vocab',skill:'vocabulary',prompt:'In paragraph 4, "opacity" most likely means...',
+      opts:['transparency and clarity','the quality of being difficult to see through or understand','a type of error','a legal requirement'], ans:'the quality of being difficult to see through or understand',
+      exCorrect:'The paragraph describes models that cannot offer a "human-readable explanation," directly illustrating what opacity means here.',
+      exWrong:'Opacity is the opposite of transparency — the paragraph is entirely about models being hard to interpret or explain, not about clarity.'},
+    {type:'mc',skill:'author_purpose',prompt:"What is the author's overall stance toward algorithmic decision-making?",
+      opts:['Entirely against using algorithms','Cautiously critical, calling for scrutiny rather than blind trust or outright rejection','Entirely supportive without reservations','Indifferent'],
+      ans:'Cautiously critical, calling for scrutiny rather than blind trust or outright rejection',
+      exCorrect:'Paragraph 5 explicitly states this is "not an argument for abandoning algorithmic tools altogether," while still demanding transparency and oversight.',
+      exWrong:'The nuanced position — acknowledging benefits while demanding accountability — rules out both blind support and total rejection as accurate descriptions.'},
+    {type:'tfng',skill:'details',prompt:'"The text argues that algorithms should be completely abandoned." True, False, or Not Given?',
+      opts:['True','False','Not Given'], ans:'False',
+      exCorrect:'Paragraph 5 explicitly rejects this position.',
+      exWrong:'The text says directly: "None of this is an argument for abandoning algorithmic tools altogether."'},
+    {type:'tfng',skill:'details',prompt:'"The text states that opaque algorithms are harder to challenge than human decisions." True, False, or Not Given?',
+      opts:['True','False','Not Given'], ans:'True',
+      exCorrect:'Paragraph 4 contrasts human judgments, which "can be appealed, scrutinized, and overturned," with opaque algorithmic verdicts that "discourage challenge."',
+      exWrong:'Paragraph 4 draws exactly this contrast — an opaque algorithmic decision resists challenge more than a human one that can be questioned and appealed.'},
+    {type:'mc',skill:'inference',prompt:"Why does the author distinguish between 'consistency' and 'objectivity' in the final paragraph?",
+      opts:['To show they mean exactly the same thing','To argue that being consistent does not guarantee that a system is fair or unbiased','To praise algorithms for being flawless','To criticize human judgment for being inconsistent'],
+      ans:'To argue that being consistent does not guarantee that a system is fair or unbiased',
+      exCorrect:'The final lines state that "consistency and objectivity are not synonyms" and that a system can be "consistently encoding a distorted view."',
+      exWrong:'The whole point of the distinction is that the two terms are different — a system can apply the same flawed formula every time and still be unfair, which is the opposite of treating them as identical.'}
+  ]
+}
+];
+
+/* =============== STATE =============== */
+const SAVE_KEY = 'wordquest_save_v2';
+let state = loadState();
+
+function defaultState(){
+  return {
+    xp:0, streak:0, bestStreak:0,
+    totalAnswered:0, totalCorrect:0,
+    wordStats:{}, // id -> {correct, wrong}
+    sessionCorrect:0, sessionTotal:0,
+    sessionSize:5,
+    grammarStats:{}, // topicId -> {correct,wrong}
+    readingStats:{}, // level -> {correct,wrong}
+    skillStats:{}, // skill -> {correct,wrong}
+    textsCompleted:[], // textId list
+    readingWordsSeen:[] // "textId:word" list
+  };
+}
+function loadState(){
+  try{
+    const raw = localStorage.getItem(SAVE_KEY);
+    if(raw) return Object.assign(defaultState(), JSON.parse(raw));
+  }catch(e){ /* localStorage unavailable in this context */ }
+  return defaultState();
+}
+function saveState(){
+  try{ localStorage.setItem(SAVE_KEY, JSON.stringify(state)); }catch(e){ /* ignore */ }
+}
+
+function getLevel(){ return Math.floor(state.xp/100)+1; }
+function xpIntoLevel(){ return state.xp%100; }
+function unlockedLevels(){
+  const lv=[];
+  if(state.xp>=CEFR_INFO.A1.threshold) lv.push('A1');
+  if(state.xp>=CEFR_INFO.A2.threshold) lv.push('A2');
+  if(state.xp>=CEFR_INFO.B1.threshold) lv.push('B1');
+  if(state.xp>=CEFR_INFO.B2.threshold) lv.push('B2');
+  if(state.xp>=CEFR_INFO.C1.threshold) lv.push('C1');
+  if(state.xp>=CEFR_INFO.C2.threshold) lv.push('C2');
+  return lv;
+}
+function addXP(amount){
+  const prevLevel = getLevel();
+  state.xp += amount;
+  if(getLevel()>prevLevel){
+    setTimeout(()=>{
+      document.getElementById('levelup-text').textContent = 'Ты достиг уровня '+getLevel()+'!';
+      openOverlay('overlay-levelup');
+    }, 500);
+  }
+}
+function bumpStat(bucket,key,correct){
+  if(!bucket[key]) bucket[key]={correct:0,wrong:0};
+  if(correct) bucket[key].correct++; else bucket[key].wrong++;
+}
+function pct(obj){
+  if(!obj) return 0;
+  const t=obj.correct+obj.wrong;
+  return t? Math.round(100*obj.correct/t):0;
+}
+
+/* =============== VIEW SWITCH =============== */
+function showView(name){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+  if(name==='home') renderHome();
+  if(name==='words') renderWords('A1');
+  if(name==='progress') renderProgress();
+  if(name==='grammar') renderGrammarHome();
+  if(name==='reading') renderReadingHome();
+}
+
+/* =============== HOME =============== */
+function renderHome(){
+  document.getElementById('home-level').textContent = getLevel();
+  document.getElementById('home-xp').textContent = state.xp;
+  document.getElementById('home-streak').textContent = state.streak;
+  document.getElementById('home-xp-fill').style.width = xpIntoLevel()+'%';
+  document.getElementById('home-xp-caption').textContent = xpIntoLevel()+' / 100 XP';
+  const lv = unlockedLevels();
+  const top = lv[lv.length-1];
+  document.getElementById('home-cefr').textContent = CEFR_INFO[top].name;
+}
+
+/* =============== WORDS =============== */
+let currentWordTab = 'A1';
+function renderWordTabs(){
+  const lv = unlockedLevels();
+  const tabs = ['A1','A2','B1','B2','C1','C2'];
+  const html = tabs.map(t=>{
+    const locked = !lv.includes(t);
+    const active = t===currentWordTab;
+    return `<button class="level-tab ${active?'active':''} ${locked?'locked':''}" ${locked?'disabled':''} onclick="renderWords('${t}')">${t}${locked?' 🔒':''}</button>`;
+  }).join('');
+  document.getElementById('word-level-tabs').innerHTML = html;
+}
+function renderWords(level){
+  if(!unlockedLevels().includes(level)) return;
+  currentWordTab = level;
+  renderWordTabs();
+  const list = WORDS.filter(w=>w.lvl===level);
+  const container = document.getElementById('word-list');
+  if(list.length===0){
+    container.innerHTML = '<div class="empty-state">Пока нет слов на этом уровне</div>';
+    return;
+  }
+  container.innerHTML = list.map(w=>{
+    const st = state
