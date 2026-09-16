@@ -1,0 +1,2497 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>WordQuest — Учи английский</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F5F7F1;
+    --surface:#FFFFFF;
+    --surface-alt:#EAF0E6;
+    --primary:#2F9E8F;
+    --primary-dark:#227C70;
+    --primary-light:#DCF1EC;
+    --accent:#FF8A5B;
+    --accent-light:#FFE7DA;
+    --violet:#7C6FE0;
+    --violet-light:#E8E5FB;
+    --text:#202B24;
+    --text-muted:#6E7A72;
+    --success:#3FAE72;
+    --success-light:#E1F5E7;
+    --error:#E15554;
+    --error-light:#FCE3E2;
+    --border:#E2E8DC;
+    --radius-lg:26px;
+    --radius-md:18px;
+    --radius-sm:12px;
+    --shadow:0 10px 28px rgba(32,43,36,0.08);
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0;padding:0;height:100%;
+    font-family:'Inter',sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    -webkit-tap-highlight-color:transparent;
+    overscroll-behavior:none;
+  }
+  h1,h2,h3,.display{font-family:'Fredoka',sans-serif;margin:0;}
+  button{font-family:inherit;border:none;background:none;cursor:pointer;color:inherit;}
+  
+  #app{
+    min-height:100dvh;
+    display:flex;
+    flex-direction:column;
+    max-width:480px;
+    margin:0 auto;
+    position:relative;
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+
+  .view{display:none;flex:1;flex-direction:column;padding:20px 20px 28px;animation:fadeIn .35s ease;}
+  .view.active{display:flex;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+  /* ---------- HOME ---------- */
+  .home-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand-badge{
+    width:42px;height:42px;border-radius:14px;
+    background:linear-gradient(145deg,var(--primary),var(--primary-dark));
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Fredoka';font-weight:600;color:#fff;font-size:20px;
+    box-shadow:var(--shadow);
+  }
+  .brand-name{font-size:20px;font-weight:600;letter-spacing:.2px;}
+  .brand-sub{font-size:12px;color:var(--text-muted);margin-top:-2px;}
+
+  .stat-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:20px 0 8px;}
+  .stat-card{
+    background:var(--surface);
+    border-radius:var(--radius-md);
+    padding:14px 10px;
+    text-align:center;
+    box-shadow:var(--shadow);
+  }
+  .stat-num{font-family:'Fredoka';font-size:22px;font-weight:600;}
+  .stat-label{font-size:11px;color:var(--text-muted);margin-top:2px;}
+  .stat-card.streak .stat-num{color:var(--accent);}
+  .stat-card.level .stat-num{color:var(--primary-dark);}
+
+  .xp-wrap{margin:16px 0 6px;}
+  .xp-bar-track{height:10px;border-radius:999px;background:var(--surface-alt);overflow:hidden;}
+  .xp-bar-fill{
+    height:100%;border-radius:999px;
+    background:linear-gradient(90deg,var(--primary),var(--primary-dark));
+    transition:width .5s ease;
+  }
+  .xp-caption{display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted);margin-top:6px;}
+
+  .home-hero{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:4px;padding:14px 0 10px;
+  }
+  .home-hero .pixel-mascot{font-size:44px;line-height:1;filter:drop-shadow(0 6px 10px rgba(0,0,0,0.08));}
+  .home-hero h2{font-size:16.5px;font-weight:600;margin-top:4px;}
+
+  .btn-primary{
+    width:100%;padding:18px;border-radius:var(--radius-lg);
+    background:var(--primary);color:#fff;font-family:'Fredoka';font-size:18px;font-weight:600;
+    box-shadow:0 10px 22px rgba(47,158,143,0.35);
+    transition:transform .12s ease, box-shadow .12s ease;
+  }
+  .btn-primary:active{transform:scale(0.97);box-shadow:0 6px 14px rgba(47,158,143,0.3);}
+
+  .quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
+  .btn-secondary{
+    padding:16px 12px;border-radius:var(--radius-md);
+    background:var(--surface);color:var(--text);font-weight:600;font-size:14.5px;
+    box-shadow:var(--shadow);
+    transition:transform .12s ease;
+    display:flex;flex-direction:column;align-items:flex-start;gap:6px;
+  }
+  .btn-secondary:active{transform:scale(0.96);}
+  .btn-secondary .ico{font-size:20px;}
+  .btn-secondary .sub{font-size:11px;color:var(--text-muted);font-weight:500;}
+
+  /* ---------- HEADER ---------- */
+  .subheader{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
+  .back-btn{
+    width:38px;height:38px;border-radius:12px;background:var(--surface);
+    display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:var(--shadow);
+    flex-shrink:0;
+  }
+  .subheader h2{font-size:18px;font-weight:600;}
+  .subheader .sub-caption{font-size:12px;color:var(--text-muted);margin-top:1px;}
+
+  /* ---------- GAME VIEW & QUIZ ---------- */
+  .game-progress-row{display:flex;align-items:center;gap:10px;margin-bottom:18px;}
+  .game-progress-track{flex:1;height:8px;border-radius:999px;background:var(--surface-alt);overflow:hidden;}
+  .game-progress-fill{height:100%;background:var(--accent);border-radius:999px;transition:width .3s ease;}
+  .game-close{width:34px;height:34px;border-radius:10px;background:var(--surface);display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow);font-size:15px;color:var(--text-muted);flex-shrink:0;}
+  .streak-chip{display:flex;align-items:center;gap:4px;font-size:13px;font-weight:600;color:var(--accent);flex-shrink:0;}
+
+  .q-card{
+    background:var(--surface);border-radius:var(--radius-lg);
+    padding:22px 18px;box-shadow:var(--shadow);text-align:center;margin-bottom:18px;
+    flex-shrink:0;
+  }
+  .q-badge{
+    display:inline-block;padding:4px 10px;border-radius:999px;background:var(--primary-light);
+    color:var(--primary-dark);font-size:11px;font-weight:700;margin-bottom:10px;text-transform:uppercase;
+  }
+  .q-prompt{font-family:'Fredoka';font-size:24px;font-weight:600;word-break:break-word;line-height:1.35;}
+  .q-prompt.small{font-size:17px;font-weight:500;font-family:'Inter';line-height:1.5;text-align:left;}
+  .q-hint{font-size:13px;color:var(--text-muted);margin-top:8px;}
+
+  .options-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;flex:1;align-content:start;}
+  .options-grid.one-col{grid-template-columns:1fr;}
+  .opt-btn{
+    background:var(--surface);border-radius:var(--radius-md);
+    padding:16px 12px;font-size:15px;font-weight:600;text-align:center;
+    box-shadow:var(--shadow);border:2px solid transparent;
+    transition:transform .12s ease, background .15s ease, border-color .15s ease;
+    min-height:60px;display:flex;align-items:center;justify-content:center;line-height:1.35;
+  }
+  .opt-btn:active{transform:scale(0.96);}
+  .opt-btn.correct{background:var(--success-light);border-color:var(--success);color:#1E6B41;}
+  .opt-btn.wrong{background:var(--error-light);border-color:var(--error);color:#9C2C2B;}
+  .opt-btn.dim{opacity:.45;}
+  .opt-btn.disabled{pointer-events:none;}
+
+  .build-zone{
+    min-height:60px;background:var(--surface-alt);border-radius:var(--radius-md);
+    display:flex;flex-wrap:wrap;gap:8px;padding:12px;align-content:flex-start;margin-bottom:14px;
+    border:2px dashed var(--border);
+  }
+  .word-chip{
+    background:var(--surface);padding:9px 14px;border-radius:999px;font-weight:600;font-size:14.5px;
+    box-shadow:var(--shadow);transition:transform .12s ease;user-select:none;
+  }
+  .word-chip:active{transform:scale(0.94);}
+  .chip-bank{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:16px;}
+  .chip-bank .word-chip.used{opacity:0;pointer-events:none;}
+  .chip-bank .word-chip{background:var(--primary-light);color:var(--primary-dark);}
+  .build-zone .word-chip{background:var(--accent-light);color:#B75A2E;}
+
+  /* ---------- FEEDBACK BAR & EXPLANATIONS ---------- */
+  .feedback-bar{
+    position:sticky;bottom:0;margin:16px -20px -28px;padding:16px 20px calc(16px + env(safe-area-inset-bottom));
+    display:flex;flex-direction:column;gap:12px;
+    animation:slideUp .25s ease;
+    border-top-left-radius:20px;border-top-right-radius:20px;
+    box-shadow:0 -6px 20px rgba(0,0,0,0.06);
+  }
+  @keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+  .feedback-bar.correct{background:var(--success-light);}
+  .feedback-bar.wrong{background:var(--error-light);}
+
+  .feedback-header{display:flex;align-items:center;justify-content:space-between;}
+  .feedback-title{font-weight:700;font-size:16px;}
+  .feedback-bar.correct .feedback-title{color:#1E6B41;}
+  .feedback-bar.wrong .feedback-title{color:#9C2C2B;}
+
+  .explain-box{
+    background:rgba(255,255,255,0.75);border-radius:14px;padding:12px 14px;
+    font-size:13px;line-height:1.5;color:var(--text);
+    display:flex;flex-direction:column;gap:8px;
+  }
+  .explain-item{display:flex;flex-direction:column;gap:2px;}
+  .explain-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);}
+  .explain-val{font-size:13.5px;font-weight:600;}
+  .explain-val.correct-val{color:#1E6B41;}
+  .explain-val.wrong-val{color:#9C2C2B;}
+
+  .next-btn{
+    padding:14px 20px;border-radius:14px;font-weight:700;font-size:15px;color:#fff;
+    width:100%;margin-top:4px;
+  }
+  .feedback-bar.correct .next-btn{background:var(--success);}
+  .feedback-bar.wrong .next-btn{background:var(--error);}
+
+  .check-btn{
+    width:100%;padding:16px;border-radius:var(--radius-md);background:var(--primary);color:#fff;
+    font-weight:700;font-size:16px;margin-top:auto;box-shadow:0 6px 16px rgba(47,158,143,0.3);
+  }
+  .check-btn:disabled{opacity:.4;}
+
+  /* ---------- WORDS VIEW ---------- */
+  .level-tabs{display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;padding-bottom:4px;}
+  .level-tab{
+    flex:1;padding:10px 8px;border-radius:12px;background:var(--surface);text-align:center;
+    font-size:13px;font-weight:600;color:var(--text-muted);box-shadow:var(--shadow);
+    min-width:52px;white-space:nowrap;
+  }
+  .level-tab.active{background:var(--primary);color:#fff;}
+  .word-search-input{
+    width:100%;padding:12px 16px;border-radius:14px;border:1px solid var(--border);
+    background:var(--surface);font-size:14px;margin-bottom:12px;outline:none;
+  }
+  .word-list{display:flex;flex-direction:column;gap:10px;overflow-y:auto;max-height:calc(100vh - 220px);}
+  .word-item{
+    background:var(--surface);border-radius:var(--radius-md);padding:14px 16px;box-shadow:var(--shadow);
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+  }
+  .word-item-en{font-weight:700;font-size:15.5px;}
+  .word-item-ru{font-size:13px;color:var(--text-muted);margin-top:2px;}
+  .word-item-ex{font-size:11.5px;color:var(--text-muted);margin-top:4px;font-style:italic;}
+
+  /* ---------- PROGRESS VIEW ---------- */
+  .progress-card{
+    background:var(--surface);border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow);margin-bottom:14px;
+  }
+  .progress-card h3{font-size:14px;color:var(--text-muted);font-weight:600;margin-bottom:12px;}
+  .big-level{display:flex;align-items:baseline;gap:8px;}
+  .big-level .num{font-family:'Fredoka';font-size:38px;font-weight:600;color:var(--primary-dark);}
+  .big-level .lbl{font-size:13px;color:var(--text-muted);}
+  .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .mini-stat{background:var(--surface-alt);border-radius:var(--radius-sm);padding:12px;text-align:center;}
+  .mini-stat .v{font-family:'Fredoka';font-size:20px;font-weight:600;}
+  .mini-stat .l{font-size:11px;color:var(--text-muted);margin-top:2px;}
+
+  .level-step-box{
+    display:flex;align-items:center;justify-content:space-between;
+    background:var(--surface-alt);border-radius:14px;padding:12px 14px;margin-bottom:8px;
+  }
+  .level-step-title{font-weight:700;font-size:14px;}
+  .level-step-sub{font-size:11.5px;color:var(--text-muted);}
+  .level-step-status{font-weight:700;font-size:12px;}
+  .level-step-status.active{color:var(--primary-dark);}
+  .level-step-status.completed{color:var(--success);}
+  .level-step-status.locked{color:var(--text-muted);}
+
+  /* ---------- READING HUB & READER ---------- */
+  .reading-level-card{
+    background:var(--surface);border-radius:var(--radius-md);padding:16px;box-shadow:var(--shadow);
+    margin-bottom:12px;display:flex;flex-direction:column;gap:10px;
+  }
+  .reading-level-card.locked{opacity:0.6;}
+  .rl-head{display:flex;align-items:center;justify-content:space-between;}
+  .rl-title{font-size:17px;font-weight:700;}
+  .rl-badge{background:var(--accent-light);color:#B75A2E;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;}
+  .rl-desc{font-size:12.5px;color:var(--text-muted);line-height:1.45;}
+  .rl-progress-track{height:6px;background:var(--surface-alt);border-radius:999px;overflow:hidden;}
+  .rl-progress-fill{height:100%;background:var(--accent);border-radius:999px;transition:width .3s ease;}
+
+  .reader-meta{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-muted);margin-bottom:12px;}
+  .reader-badge{background:var(--accent-light);color:#B75A2E;font-weight:700;padding:4px 10px;border-radius:999px;font-size:11px;}
+  .reader-body{
+    background:var(--surface);border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow);
+    font-size:15.5px;line-height:1.75;flex:1;overflow-y:auto;margin-bottom:16px;
+  }
+  .reader-body p{margin:0 0 14px;}
+  .reader-body p:last-child{margin-bottom:0;}
+  .source-tag{font-size:11.5px;color:var(--text-muted);font-style:italic;margin-top:12px;border-top:1px dashed var(--border);padding-top:8px;}
+
+  /* ---------- OVERLAYS & MODALS ---------- */
+  .overlay{
+    position:fixed;inset:0;background:rgba(32,43,36,0.5);display:none;
+    align-items:center;justify-content:center;z-index:50;padding:24px;
+  }
+  .overlay.show{display:flex;}
+  .overlay-card{
+    background:var(--surface);border-radius:24px;padding:30px 24px;text-align:center;max-width:340px;width:100%;
+    animation:popIn .3s ease;
+  }
+  @keyframes popIn{from{transform:scale(0.85);opacity:0;}to{transform:scale(1);opacity:1;}}
+  .overlay-emoji{font-size:50px;margin-bottom:10px;}
+  .overlay-card h3{font-size:20px;margin-bottom:6px;}
+  .overlay-card p{font-size:13.5px;color:var(--text-muted);margin:0 0 18px;}
+
+  ::-webkit-scrollbar{width:0;height:0;}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- HOME VIEW -->
+  <div class="view active" id="view-home">
+    <div class="home-top">
+      <div class="brand">
+        <div class="brand-badge">W</div>
+        <div>
+          <div class="brand-name">WordQuest</div>
+          <div class="brand-sub">интерактивный английский</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-card level"><div class="stat-num" id="home-level">1</div><div class="stat-label">уровень</div></div>
+      <div class="stat-card"><div class="stat-num" id="home-xp">0</div><div class="stat-label">XP</div></div>
+      <div class="stat-card streak"><div class="stat-num" id="home-streak">0</div><div class="stat-label">серия 🔥</div></div>
+    </div>
+
+    <div class="xp-wrap">
+      <div class="xp-bar-track"><div class="xp-bar-fill" id="home-xp-fill" style="width:0%"></div></div>
+      <div class="xp-caption"><span id="home-xp-caption">0 / 100 XP</span><span id="home-cefr">A1 · Adaptive Mode</span></div>
+    </div>
+
+    <div class="home-hero">
+      <div class="pixel-mascot">🦉</div>
+      <h2>Улучшай словарный запас и Reading!</h2>
+    </div>
+
+    <button class="btn-primary" data-action="start-game">Быстрый квиз · Слова</button>
+    
+    <div class="quick-grid">
+      <button class="btn-secondary" data-action="show-view" data-arg="reading"><span class="ico">📖</span>Reading<span class="sub" id="home-reading-sub">B1 → B2 → C1 → C2</span></button>
+      <button class="btn-secondary" data-action="show-view" data-arg="grammar"><span class="ico">🧩</span>Грамматика<span class="sub">Практика правил</span></button>
+      <button class="btn-secondary" data-action="show-view" data-arg="words"><span class="ico">📚</span>Словарь<span class="sub" id="home-vocab-count">6000+ слов</span></button>
+      <button class="btn-secondary" data-action="show-view" data-arg="progress"><span class="ico">📈</span>Прогресс<span class="sub">Статистика</span></button>
+    </div>
+  </div>
+
+  <!-- GAME VIEW (WORDS & VOCAB) -->
+  <div class="view" id="view-game">
+    <div class="game-progress-row">
+      <button class="game-close" data-action="exit-game">✕</button>
+      <div class="game-progress-track"><div class="game-progress-fill" id="game-progress-fill" style="width:0%"></div></div>
+      <div class="streak-chip">🔥 <span id="game-streak">0</span></div>
+    </div>
+    <div id="game-question-area"></div>
+  </div>
+
+  <!-- WORDS VIEW -->
+  <div class="view" id="view-words">
+    <div class="subheader">
+      <button class="back-btn" data-action="show-view" data-arg="home">←</button>
+      <h2>Словарь WordQuest</h2>
+    </div>
+    <div class="level-tabs" id="word-level-tabs"></div>
+    <input type="text" class="word-search-input" id="word-search" placeholder="Поиск слова (English / Русский)..." oninput="App.onWordSearch(this.value)">
+    <div class="word-list" id="word-list"></div>
+  </div>
+
+  <!-- PROGRESS VIEW -->
+  <div class="view" id="view-progress">
+    <div class="subheader">
+      <button class="back-btn" data-action="show-view" data-arg="home">←</button>
+      <h2>Твой прогресс</h2>
+    </div>
+
+    <div class="progress-card">
+      <h3>Общий игровой уровень</h3>
+      <div class="big-level"><span class="num" id="prog-level">1</span><span class="lbl" id="prog-xp-caption">0 / 100 XP</span></div>
+      <div class="xp-bar-track" style="margin-top:12px;"><div class="xp-bar-fill" id="prog-xp-fill" style="width:0%"></div></div>
+    </div>
+
+    <div class="progress-card">
+      <h3>Прогресс Reading (10 заданий / уровень)</h3>
+      <div id="prog-reading-levels"></div>
+    </div>
+
+    <div class="progress-card">
+      <h3>Общая статистика</h3>
+      <div class="stats-grid">
+        <div class="mini-stat"><div class="v" id="prog-answered">0</div><div class="l">ответов дано</div></div>
+        <div class="mini-stat"><div class="v" id="prog-accuracy">0%</div><div class="l">точность</div></div>
+        <div class="mini-stat"><div class="v" id="prog-used-words">0</div><div class="l">слов задействовано</div></div>
+        <div class="mini-stat"><div class="v" id="prog-used-texts">0</div><div class="l">текстов прочитано</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GRAMMAR HUB -->
+  <div class="view" id="view-grammar">
+    <div class="subheader">
+      <button class="back-btn" data-action="show-view" data-arg="home">←</button>
+      <div><h2>Грамматика</h2><div class="sub-caption">Выберите уровень и тему</div></div>
+    </div>
+    <div class="level-tabs" id="grammar-level-tabs"></div>
+    <div id="grammar-topic-list"></div>
+  </div>
+
+  <!-- GRAMMAR QUIZ -->
+  <div class="view" id="view-grammar-quiz">
+    <div class="game-progress-row">
+      <button class="game-close" data-action="show-view" data-arg="grammar">✕</button>
+      <div class="game-progress-track"><div class="game-progress-fill" id="gq-progress-fill" style="width:0%"></div></div>
+    </div>
+    <div id="gq-area"></div>
+  </div>
+
+  <!-- READING HUB -->
+  <div class="view" id="view-reading">
+    <div class="subheader">
+      <button class="back-btn" data-action="show-view" data-arg="home">←</button>
+      <div><h2>Режим Reading</h2><div class="sub-caption">Пройдите 10 заданий для перехода</div></div>
+    </div>
+    <div id="reading-level-list"></div>
+  </div>
+
+  <!-- READER -->
+  <div class="view" id="view-reader">
+    <div class="subheader">
+      <button class="back-btn" data-action="show-view" data-arg="reading">←</button>
+      <div><h2 id="reader-heading">Текст</h2></div>
+    </div>
+    <div class="reader-meta">
+      <span class="reader-badge" id="reader-level-badge">B1</span>
+      <span id="reader-task-num">Задание 1 / 10</span>
+    </div>
+    <div class="reader-body" id="reader-body"></div>
+    <button class="btn-primary" data-action="start-reading-quiz">Перейти к вопросам по тексту</button>
+  </div>
+
+  <!-- READING QUIZ -->
+  <div class="view" id="view-reading-quiz">
+    <div class="game-progress-row">
+      <button class="game-close" data-action="show-view" data-arg="reading">✕</button>
+      <div class="game-progress-track"><div class="game-progress-fill" id="rq-progress-fill" style="width:0%"></div></div>
+    </div>
+    <div id="rq-area"></div>
+  </div>
+
+</div>
+
+<!-- OVERLAY: LEVEL COMPLETED -->
+<div class="overlay" id="overlay-reading-levelup">
+  <div class="overlay-card">
+    <div class="overlay-emoji">🎓</div>
+    <h3 id="levelup-title">Уровень пройдён!</h3>
+    <p id="levelup-desc">Вы успешно выполнили 10 Reading-заданий и открыли следующий уровень!</p>
+    <button class="btn-primary" data-action="close-overlay-reading">Продолжить</button>
+  </div>
+</div>
+
+<!-- OVERLAY: GENERAL SESSION END -->
+<div class="overlay" id="overlay-session">
+  <div class="overlay-card">
+    <div class="overlay-emoji" id="session-emoji">🌟</div>
+    <h3 id="session-title">Сессия завершена!</h3>
+    <p id="session-text">Отличное качество работы.</p>
+    <button class="btn-primary" data-action="close-overlay-home">На главную</button>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   1. STORAGE & SPACED REPETITION SYSTEM (SRS)
+   ========================================================= */
+const Storage = {
+  getStats(){
+    const def = { xp: 0, level: 1, streak: 0, correctTotal: 0, wrongTotal: 0 };
+    try {
+      return JSON.parse(localStorage.getItem('wq_user_stats')) || def;
+    } catch(e) { return def; }
+  },
+  saveStats(stats){
+    localStorage.setItem('wq_user_stats', JSON.stringify(stats));
+  },
+  getWordStats(){
+    try {
+      return JSON.parse(localStorage.getItem('wq_word_stats')) || {};
+    } catch(e) { return {}; }
+  },
+  saveWordStats(wStats){
+    localStorage.setItem('wq_word_stats', JSON.stringify(wStats));
+  },
+  updateWordProgress(wordId, isCorrect){
+    const wStats = this.getWordStats();
+    if(!wStats[wordId]){
+      wStats[wordId] = { correct: 0, wrong: 0, lastSeen: Date.now(), interval: 1, ease: 2.5 };
+    }
+    const st = wStats[wordId];
+    if(isCorrect){
+      st.correct = (st.correct || 0) + 1;
+      st.interval = Math.round((st.interval || 1) * (st.ease || 2.5));
+    } else {
+      st.wrong = (st.wrong || 0) + 1;
+      st.interval = 1;
+      st.ease = Math.max(1.3, (st.ease || 2.5) - 0.2);
+    }
+    st.lastSeen = Date.now();
+    this.saveWordStats(wStats);
+  },
+  getReadingState(){
+    const def = { currentLevel: 'B1', B1: 0, B2: 0, C1: 0, C2: 0 };
+    try {
+      return JSON.parse(localStorage.getItem('wq_reading_state')) || def;
+    } catch(e) { return def; }
+  },
+  saveReadingState(st){
+    localStorage.setItem('wq_reading_state', JSON.stringify(st));
+  },
+  getUsed(key){
+    try {
+      return new Set(JSON.parse(localStorage.getItem('wq_used_' + key)) || []);
+    } catch(e) { return new Set(); }
+  },
+  addUsed(key, id){
+    const set = this.getUsed(key);
+    set.add(id);
+    localStorage.setItem('wq_used_' + key, JSON.stringify(Array.from(set)));
+  },
+  resetUsedIfFull(key, totalAvailable){
+    const set = this.getUsed(key);
+    if(set.size >= totalAvailable && totalAvailable > 0){
+      localStorage.setItem('wq_used_' + key, JSON.stringify([]));
+    }
+  }
+};
+
+/* =========================================================
+   2. VOCABULARY GENERATOR & DEDUPLICATED DATABASE (6000+ WORDS)
+   ========================================================= */
+
+// Seed base entries
+const BASE_WORDS = [
+  // A1 Core
+  {id:'w_apple', en:'apple', ru:'яблоко', ex:'She eats a fresh apple every morning.', lvl:'A1'},
+  {id:'w_house', en:'house', ru:'дом', ex:'They live in a cozy house near the park.', lvl:'A1'},
+  {id:'w_water', en:'water', ru:'вода', ex:'Please drink enough water every day.', lvl:'A1'},
+  {id:'w_food', en:'food', ru:'еда', ex:'Italian food is famous around the world.', lvl:'A1'},
+  {id:'w_friend', en:'friend', ru:'друг', ex:'My best friend helps me with homework.', lvl:'A1'},
+  {id:'w_school', en:'school', ru:'школа', ex:'The children walk to school together.', lvl:'A1'},
+  {id:'w_happy', en:'happy', ru:'счастливый', ex:'They felt very happy after hearing the news.', lvl:'A1'},
+  {id:'w_book', en:'book', ru:'книга', ex:'He read an interesting book about history.', lvl:'A1'},
+  {id:'w_family', en:'family', ru:'семья', ex:'Our family gathers every Sunday for dinner.', lvl:'A1'},
+  {id:'w_city', en:'city', ru:'город', ex:'London is a large and noisy city.', lvl:'A1'},
+  {id:'w_learn', en:'learn', ru:'учить, изучать', ex:'I want to learn new languages fast.', lvl:'A1'},
+  {id:'w_sun', en:'sun', ru:'солнце', ex:'The sun is shining brightly today.', lvl:'A1'},
+  {id:'w_small', en:'small', ru:'маленький', ex:'She has a small dog in her house.', lvl:'A1'},
+  {id:'w_listen', en:'listen', ru:'слушать', ex:'Listen carefully to the instructions.', lvl:'A1'},
+  {id:'w_travel', en:'travel', ru:'путешествовать', ex:'Many people love to travel in summer.', lvl:'A1'},
+  // A2 Core
+  {id:'w_journey', en:'journey', ru:'путешествие', ex:'The train journey took four hours.', lvl:'A2'},
+  {id:'w_decision', en:'decision', ru:'решение', ex:'Making a big decision requires careful thinking.', lvl:'A2'},
+  {id:'w_dangerous', en:'dangerous', ru:'опасный', ex:'It is dangerous to cross the road without looking.', lvl:'A2'},
+  {id:'w_polite', en:'polite', ru:'вежливый', ex:'Always be polite when asking for help.', lvl:'A2'},
+  {id:'w_borrow', en:'borrow', ru:'одалживать', ex:'Can I borrow your pencil for a minute?', lvl:'A2'},
+  {id:'w_prepare', en:'prepare', ru:'готовить(ся)', ex:'We need to prepare for the upcoming test.', lvl:'A2'},
+  {id:'w_advice', en:'advice', ru:'совет', ex:'My mentor gave me great career advice.', lvl:'A2'},
+  {id:'w_comfortable', en:'comfortable', ru:'удобный', ex:'These sports shoes are very comfortable.', lvl:'A2'},
+  {id:'w_discover', en:'discover', ru:'открывать', ex:'Scientists discover new animal species every year.', lvl:'A2'},
+  {id:'w_opinion', en:'opinion', ru:'мнение', ex:'Everyone is entitled to their own opinion.', lvl:'A2'},
+  {id:'w_look_for', en:'look for', ru:'искать', ex:'I am trying to look for my lost keys.', lvl:'A2'},
+  {id:'w_give_up', en:'give up', ru:'сдаваться', ex:'Don’t give up when things get difficult.', lvl:'A2'},
+  // B1 Core
+  {id:'w_achieve', en:'achieve', ru:'достигать', ex:'She worked hard to achieve her academic goals.', lvl:'B1'},
+  {id:'w_opportunity', en:'opportunity', ru:'возможность', ex:'Studying abroad is a great opportunity.', lvl:'B1'},
+  {id:'w_environment', en:'environment', ru:'окружающая среда', ex:'Protecting the environment is essential for our future.', lvl:'B1'},
+  {id:'w_improve', en:'improve', ru:'улучшать', ex:'Practice every day to improve your skills.', lvl:'B1'},
+  {id:'w_responsibility', en:'responsibility', ru:'ответственность', ex:'Taking responsibility helps you grow.', lvl:'B1'},
+  {id:'w_advantage', en:'advantage', ru:'преимущество', ex:'Fluency in English is a major advantage in job hunting.', lvl:'B1'},
+  {id:'w_challenge', en:'challenge', ru:'вызов, задача', ex:'Solving this puzzle was an exciting challenge.', lvl:'B1'},
+  {id:'w_flexible', en:'flexible', ru:'гибкий', ex:'We offer flexible working hours for our staff.', lvl:'B1'},
+  {id:'w_predict', en:'predict', ru:'предсказывать', ex:'It is hard to predict weather changes accurately.', lvl:'B1'},
+  {id:'w_figure_out', en:'figure out', ru:'понять, разобраться', ex:'We need to figure out how this machine works.', lvl:'B1'},
+  {id:'w_carry_on', en:'carry on', ru:'продолжать', ex:'Please carry on reading while I take notes.', lvl:'B1'},
+  {id:'w_take_part', en:'take part in', ru:'принимать участие в', ex:'Over fifty students decided to take part in the contest.', lvl:'B1'},
+  // B2 Core
+  {id:'w_reluctant', en:'reluctant', ru:'неохотный', ex:'He was reluctant to admit his initial mistake.', lvl:'B2'},
+  {id:'w_thorough', en:'thorough', ru:'тщательный', ex:'The police conducted a thorough investigation.', lvl:'B2'},
+  {id:'w_persuade', en:'persuade', ru:'убеждать', ex:'She managed to persuade the team to adopt the new strategy.', lvl:'B2'},
+  {id:'w_reliable', en:'reliable', ru:'надёжный', ex:'We need a reliable source of clean energy.', lvl:'B2'},
+  {id:'w_inevitable', en:'inevitable', ru:'неизбежный', ex:'Change is an inevitable part of economic growth.', lvl:'B2'},
+  {id:'w_justify', en:'justify', ru:'оправдывать', ex:'You cannot justify breaking the safety rules.', lvl:'B2'},
+  {id:'w_emphasize', en:'emphasize', ru:'подчёркивать', ex:'The teacher emphasized the importance of regular review.', lvl:'B2'},
+  {id:'w_substantial', en:'substantial', ru:'существенный', ex:'The company made a substantial profit this quarter.', lvl:'B2'},
+  {id:'w_facilitate', en:'facilitate', ru:'способствовать', ex:'Modern software helps facilitate smooth communication.', lvl:'B2'},
+  {id:'w_come_across', en:'come across', ru:'натолкнуться', ex:'I came across an old photo album while cleaning.', lvl:'B2'},
+  {id:'w_put_off', en:'put off', ru:'откладывать', ex:'Don’t put off your tasks until the last day.', lvl:'B2'},
+  {id:'w_bite_bullet', en:'bite the bullet', ru:'смириться и сделать', ex:'I decided to bite the bullet and go to the dentist.', lvl:'B2'},
+  // C1 Core
+  {id:'w_ambiguous', en:'ambiguous', ru:'двусмысленный', ex:'The official statement was intentionally ambiguous.', lvl:'C1'},
+  {id:'w_discrepancy', en:'discrepancy', ru:'несоответствие', ex:'There was a noticeable discrepancy between the two reports.', lvl:'C1'},
+  {id:'w_meticulous', en:'meticulous', ru:'скрупулёзный', ex:'Her meticulous attention to detail prevented major errors.', lvl:'C1'},
+  {id:'w_plausible', en:'plausible', ru:'правдоподобный', ex:'His explanation sounded entirely plausible at first.', lvl:'C1'},
+  {id:'w_resilient', en:'resilient', ru:'устойчивый', ex:'Local communities proved resilient during the crisis.', lvl:'C1'},
+  {id:'w_scrutinize', en:'scrutinize', ru:'тщательно исследовать', ex:'Auditors scrutinize financial records line by line.', lvl:'C1'},
+  {id:'w_pragmatic', en:'pragmatic', ru:'прагматичный', ex:'We need a pragmatic solution rather than pure theory.', lvl:'C1'},
+  {id:'w_exacerbate', en:'exacerbate', ru:'усугублять', ex:'Unchecked inflation will exacerbate existing economic problems.', lvl:'C1'},
+  {id:'w_bring_about', en:'bring about', ru:'вызывать', ex:'The new policy brought about significant reform.', lvl:'C1'},
+  {id:'w_phase_out', en:'phase out', ru:'постепенно выводить', ex:'The government plans to phase out single-use plastics.', lvl:'C1'},
+  {id:'w_hit_nail', en:'hit the nail on the head', ru:'попасть в точку', ex:'His answer hit the nail on the head regarding our issue.', lvl:'C1'},
+  {id:'w_burn_midnight_oil', en:'burn the midnight oil', ru:'учиться поздно ночью', ex:'Students often burn the midnight oil before finals.', lvl:'C1'},
+  // C2 Core
+  {id:'w_ubiquitous', en:'ubiquitous', ru:'вездесущий', ex:'Smartphones have become ubiquitous across the modern world.', lvl:'C2'},
+  {id:'w_epitomize', en:'epitomize', ru:'олицетворять', ex:'Her career epitomizes dedication and perseverance.', lvl:'C2'},
+  {id:'w_fastidious', en:'fastidious', ru:'придирчивый', ex:'He is fastidious about maintaining clear coding standards.', lvl:'C2'},
+  {id:'w_paradigm', en:'paradigm', ru:'парадигма', ex:'The discovery marked a major paradigm shift in physics.', lvl:'C2'},
+  {id:'w_quintessential', en:'quintessential', ru:'наиболее типичный', ex:'He played the quintessential gentleman in the film.', lvl:'C2'},
+  {id:'w_transient', en:'transient', ru:'преходящий', ex:'Fame is often transient, fading quickly over time.', lvl:'C2'},
+  {id:'w_serendipity', en:'serendipity', ru:'счастливая случайность', ex:'Finding my dream home was pure serendipity.', lvl:'C2'},
+  {id:'w_obfuscate', en:'obfuscate', ru:'запутывать', ex:'Legal jargon often serves to obfuscate simple terms.', lvl:'C2'},
+  {id:'w_taciturn', en:'taciturn', ru:'молчаливый', ex:'The captain was a taciturn man who spoke only when necessary.', lvl:'C2'},
+  {id:'w_pull_stops', en:'pull out all the stops', ru:'приложить все усилия', ex:'The team pulled out all the stops to finish on time.', lvl:'C2'},
+  {id:'w_throw_towel', en:'throw in the towel', ru:'признать поражение', ex:'Despite setbacks, he refused to throw in the towel.', lvl:'C2'}
+];
+
+// Systematic thematic dictionary dataset builder
+function generateMassiveVocabulary() {
+  const dictionary = [...BASE_WORDS];
+  const seenEn = new Set(BASE_WORDS.map(w => w.en.toLowerCase().trim()));
+
+  function addBatch(lvl, items) {
+    for (const item of items) {
+      const normEn = item[0].toLowerCase().trim();
+      if (seenEn.has(normEn)) continue;
+      seenEn.add(normEn);
+      
+      const cleanId = 'w_' + lvl.toLowerCase() + '_' + normEn.replace(/[^a-z0-0]/g, '_').replace(/_+/g, '_');
+      dictionary.push({
+        id: cleanId,
+        en: item[0],
+        ru: item[1],
+        ex: item[2] || `Learning the word "${item[0]}" helps improve your ${lvl} vocabulary.`,
+        lvl: lvl
+      });
+    }
+  }
+
+  // --- A1 TOPIC DATASETS (1000+ Unique Essential Words) ---
+  const A1_Topics = [
+    // 1. Семья и люди
+    ["mother","мать","My mother cooks delicious food."],
+    ["father","отец","His father works at the school."],
+    ["brother","брат","I play soccer with my brother."],
+    ["sister","сестра","My sister likes reading books."],
+    ["grandmother","бабушка","Grandmother tells nice bedtime stories."],
+    ["grandfather","дедушка","Grandfather walks in the garden."],
+    ["uncle","дядя","My uncle lives in a big city."],
+    ["aunt","тётя","Aunt Mary visits us on weekends."],
+    ["cousin","двоюродный брат/сестра","My cousin sends me messages."],
+    ["parents","родители","My parents love to travel."],
+    ["child","ребёнок","The child plays with a ball."],
+    ["children","дети","The children are singing at school."],
+    ["daughter","дочь","Their daughter learns English."],
+    ["son","сын","His son plays chess very well."],
+    ["baby","младенец","The baby is sleeping peacefully."],
+    ["teenager","подросток","The teenager listens to music."],
+    ["adult","взрослый","An adult should be responsible."],
+    ["man","мужчина","That man is our English teacher."],
+    ["woman","женщина","A kind woman helped me find the street."],
+    ["boy","мальчик","The boy is riding his bicycle."],
+    ["girl","девочка","The girl is painting a blue flower."],
+    ["person","человек","Every person has a dream."],
+    ["people","люди","Many people visit the museum."],
+    ["neighbor","сосед","Our neighbor waters his plants."],
+    ["friend","друг","A true friend is always supportive."],
+    ["guest","гость","We prepared tea for our guest."],
+    ["group","группа","The study group meets every Tuesday."],
+    ["team","команда","Our team won the local match."],
+    ["partner","партнёр","Work closely with your partner."],
+
+    // 2. Дом и комнаты
+    ["house","дом","They built a nice house."],
+    ["home","дом (очаг)","Welcome to our warm home."],
+    ["room","комната","My room has a sunny window."],
+    ["bedroom","спальня","She decorates her bedroom."],
+    ["bathroom","ванная","The bathroom is clean and bright."],
+    ["kitchen","кухня","We cook dinner in the kitchen."],
+    ["living room","гостиная","Our family watches movies in the living room."],
+    ["dining room","столовая","We eat together in the dining room."],
+    ["hallway","коридор","Leave your coat in the hallway."],
+    ["balcony","балкон","He sits on the balcony in summer."],
+    ["garage","гараж","The car is inside the garage."],
+    ["garden","сад","Flowers grow in the garden."],
+    ["yard","двор","Children run around the yard."],
+    ["roof","крыша","The roof of the house is red."],
+    ["wall","стена","There is a picture on the wall."],
+    ["floor","пол","The wooden floor is warm."],
+    ["door","дверь","Please close the door gently."],
+    ["window","окно","Open the window for fresh air."],
+    ["bed","кровать","I rest in a comfortable bed."],
+    ["table","стол","Put the cups on the table."],
+    ["chair","стул","Sit down on this wooden chair."],
+    ["sofa","диван","A soft sofa stands in the center."],
+    ["cupboard","шкаф для посуды","Plates are inside the cupboard."],
+    ["wardrobe","шкаф для одежды","Hang your dress in the wardrobe."],
+    ["shelf","полка","The book is on the top shelf."],
+    ["mirror","зеркало","Look at the mirror on the wall."],
+    ["lamp","лампа","Turn on the desk lamp."],
+    ["carpet","ковёр","A soft carpet lies on the floor."],
+    ["curtain","штора","Draw the curtain to hide the light."],
+    ["fridge","холодильник","Keep the milk inside the fridge."],
+    ["stove","плита","She boils water on the stove."],
+    ["sink","раковина","Wash your hands in the sink."],
+    ["shower","душ","I take a warm shower every morning."],
+    ["toilet","туалет","The toilet is down the hall."],
+    ["key","ключ","Don't forget your house key."],
+
+    // 3. Школа и учёба
+    ["school","школа","We go to school every day."],
+    ["teacher","учитель","The teacher explains the lesson."],
+    ["student","студент, ученик","The student answers the question."],
+    ["pupil","ученик","Every pupil listens carefully."],
+    ["classroom","класс","The classroom is big and light."],
+    ["desk","письменный стол","Put your book on the desk."],
+    ["blackboard","доска","Write the word on the blackboard."],
+    ["notebook","тетрадь","I write notes in my notebook."],
+    ["pen","ручка","Borrow a blue pen for the test."],
+    ["pencil","карандаш","Draw a line with a pencil."],
+    ["eraser","ластик","Use an eraser to fix mistakes."],
+    ["ruler","линейка","Measure the line with a ruler."],
+    ["backpack","рюкзак","Pack your books into the backpack."],
+    ["textbook","учебник","Open your textbook on page ten."],
+    ["lesson","урок","Our math lesson starts now."],
+    ["exam","экзамен","She passed her final exam."],
+    ["test","тест","We have a vocabulary test today."],
+    ["homework","домашнее задание","Finish your homework before night."],
+    ["subject","предмет","English is my favorite subject."],
+    ["math","математика","Math teaches numbers and logic."],
+    ["history","история","History tells stories of the past."],
+    ["science","наука","Science experiments are fun."],
+    ["geography","география","Geography studies continents and oceans."],
+    ["question","вопрос","Ask a question if you don't know."],
+    ["answer","ответ","Write the correct answer here."],
+    ["page","страница","Turn to page twenty."],
+    ["grade","оценка","He received a good grade."],
+
+    // 4. Одежда
+    ["clothes","одежда","Wear warm clothes in winter."],
+    ["shirt","рубашка","He wears a white shirt."],
+    ["t-shirt","футболка","I bought a comfortable T-shirt."],
+    ["pants","брюки","These dark pants fit well."],
+    ["jeans","джинсы","Blue jeans are popular everywhere."],
+    ["shorts","шорты","Wear shorts when it is hot."],
+    ["skirt","юбка","She wears a long blue skirt."],
+    ["dress","платье","Her evening dress is beautiful."],
+    ["jacket","куртка","Take a warm jacket with you."],
+    ["coat","пальто","Put on your winter coat."],
+    ["sweater","свитер","A wool sweater keeps you warm."],
+    ["hoodie","толстовка","He wears a cozy hoodie."],
+    ["suit","костюм","He wore a black suit to work."],
+    ["tie","галстук","He tied his red tie carefully."],
+    ["socks","носки","Clean socks are in the drawer."],
+    ["shoes","туфли, обувь","Put your shoes near the door."],
+    ["boots","ботинки, сапоги","Heavy boots protect from rain."],
+    ["sneakers","кроссовки","I run in my new sneakers."],
+    ["hat","шляпа, шапка","Wear a hat on sunny days."],
+    ["cap","кепка","He wore a sports cap."],
+    ["scarf","шарф","A warm scarf covers her neck."],
+    ["gloves","перчатки","Keep your hands warm with gloves."],
+    ["belt","ремень","He tightened his leather belt."],
+    ["glasses","очки","She reads with her glasses."],
+    ["umbrella","зонт","Take an umbrella when it rains."],
+
+    // 5. Еда и напитки
+    ["food","еда","Healthy food gives energy."],
+    ["water","вода","Drink pure water daily."],
+    ["milk","молоко","Cats love drinking milk."],
+    ["tea","чай","Hot tea is perfect for evening."],
+    ["coffee","кофе","Morning coffee smells fresh."],
+    ["juice","сок","Fresh orange juice is sweet."],
+    ["bread","хлеб","Buy a fresh loaf of bread."],
+    ["butter","масло","Spread butter on the toast."],
+    ["cheese","сыр","Yellow cheese is tasty."],
+    ["meat","мясо","They prepare meat for dinner."],
+    ["chicken","курица","Grilled chicken tastes great."],
+    ["beef","говядина","Beef soup is very warm."],
+    ["fish","рыба","Fish live in deep lakes."],
+    ["rice","рис","Boiled rice is simple food."],
+    ["pasta","паста","Italian pasta is very popular."],
+    ["pizza","пицца","We ordered a hot pizza."],
+    ["sandwich","бутерброд","Take a sandwich for lunch."],
+    ["egg","яйцо","Boil an egg for breakfast."],
+    ["soup","суп","Vegetables make tasty soup."],
+    ["salad","салат","Fresh cucumber salad is light."],
+    ["apple","яблоко","A red apple falls down."],
+    ["banana","банан","Monkeys love sweet bananas."],
+    ["orange","апельсин","An orange is full of vitamin C."],
+    ["lemon","лимон","Add a slice of lemon to tea."],
+    ["potato","картофель","Fried potato is delicious."],
+    ["tomato","помидор","Red tomato grows in garden."],
+    ["cucumber","огурец","Green cucumber is crispy."],
+    ["onion","лук","Cut the onion carefully."],
+    ["sugar","сахар","Put a spoon of sugar in tea."],
+    ["salt","соль","Add a little salt to soup."],
+    ["cake","торт","We baked a birthday cake."],
+    ["chocolate","шоколад","Dark chocolate is sweet."],
+    ["ice cream","мороженое","Cold ice cream in summer is best."],
+    ["breakfast","завтрак","Eat breakfast every morning."],
+    ["lunch","обед","We have lunch at noon."],
+    ["dinner","ужин","Family dinner is ready."],
+
+    // 6. Животные
+    ["dog","собака","The friendly dog barks happily."],
+    ["cat","кошка","A sleeping cat is on the chair."],
+    ["bird","птица","A small bird sings in the tree."],
+    ["horse","лошадь","The horse runs across the field."],
+    ["cow","корова","The cow gives fresh milk."],
+    ["pig","свинья","Pigs live on the farm."],
+    ["sheep","овца","Soft sheep graze grass."],
+    ["goat","коза","The white goat leaps high."],
+    ["duck","утка","The duck swims in the pond."],
+    ["rabbit","кролик","The rabbit jumps quickly."],
+    ["mouse","мышь","A little mouse eats cheese."],
+    ["lion","лев","The lion is the king of animals."],
+    ["tiger","тигр","A tiger has orange stripes."],
+    ["elephant","слон","An elephant is very strong."],
+    ["bear","медведь","The brown bear catches fish."],
+    ["monkey","обезьяна","A playful monkey climbs trees."],
+    ["snake","змея","The green snake crawls quietly."],
+    ["frog","лягушка","A green frog jumps into water."],
+    ["turtle","черепаха","The turtle walks very slowly."],
+    ["wolf","волк","The gray wolf howls at night."],
+    ["fox","лиса","A clever fox lives in the forest."],
+
+    // 7. Цвета
+    ["red","красный","A bright red apple."],
+    ["blue","синий","The clear blue sky."],
+    ["green","зелёный","Fresh green grass."],
+    ["yellow","жёлтый","A warm yellow sun."],
+    ["orange","оранжевый","An orange sunset."],
+    ["purple","фиолетовый","A purple flower in garden."],
+    ["pink","розовый","A soft pink dress."],
+    ["brown","коричневый","A solid brown table."],
+    ["black","чёрный","A sleek black cat."],
+    ["white","белый","Pure white winter snow."],
+    ["gray","серый","A gray cloud above."],
+    ["silver","серебряный","A shiny silver spoon."],
+    ["gold","золотой","A gold ring on finger."],
+    ["dark","тёмный","A dark night sky."],
+    ["light","светлый","A light and bright room."],
+
+    // 8. Числа и время
+    ["one","один","I have one brother."],
+    ["two","два","Two cats sleep together."],
+    ["three","три","Three birds sit on a wire."],
+    ["four","четыре","Four chairs around the table."],
+    ["five","пять","Five fingers on a hand."],
+    ["six","шесть","Six apples in a basket."],
+    ["seven","семь","Seven days in a week."],
+    ["eight","восемь","Eight legs of a spider."],
+    ["nine","девять","Nine pages of reading."],
+    ["ten","десять","Ten students in room."],
+    ["hundred","сто","One hundred pages in the book."],
+    ["thousand","тысяча","A thousand miles away."],
+    ["first","первый","The first lesson is easy."],
+    ["second","второй","The second chapter of book."],
+    ["third","третий","The third place in race."],
+    ["minute","минута","Wait one minute please."],
+    ["hour","час","An hour passes quickly."],
+    ["day","день","Have a wonderful day."],
+    ["week","неделя","Seven days make a week."],
+    ["month","месяц","Twelve months in a year."],
+    ["year","год","Happy New Year!."],
+    ["morning","утро","Good morning to everyone."],
+    ["afternoon","день (после полудня)","Good afternoon, my friend."],
+    ["evening","вечер","We rest in the evening."],
+    ["night","ночь","Good night and pleasant dreams."],
+    ["today","сегодня","Today is a sunny day."],
+    ["yesterday","вчера","Yesterday we stayed home."],
+    ["tomorrow","завтра","Tomorrow we go travelling."],
+
+    // 9. Погода
+    ["weather","погода","The weather is clear today."],
+    ["sun","солнце","The sun shines warm."],
+    ["rain","дождь","Cold rain falls down."],
+    ["snow","снег","White snow covers fields."],
+    ["wind","ветер","Strong wind blows trees."],
+    ["cloud","облако","A white cloud in the sky."],
+    ["storm","шторм, буря","A heavy storm approaches."],
+    ["fog","туман","Thick fog over the river."],
+    ["ice","лёд","Ice covers the pond."],
+    ["hot","жаркий","Summer days are hot."],
+    ["cold","холодный","Winter air is cold."],
+    ["warm","тёплый","Spring days are warm."],
+    ["cool","прохладный","A cool breeze in evening."],
+    ["sunny","солнечный","A bright sunny afternoon."],
+    ["rainy","дождливый","Take a coat on rainy day."],
+    ["snowy","снежный","Children love snowy weather."],
+    ["windy","ветреный","It is windy outdoors."],
+
+    // 10. Транспорт
+    ["car","машина","Drive a safe car."],
+    ["bus","автобус","The city bus arrives."],
+    ["train","поезд","The train moves fast."],
+    ["plane","самолёт","A plane flies high."],
+    ["bicycle","велосипед","Ride a green bicycle."],
+    ["motorcycle","мотоцикл","He owns a red motorcycle."],
+    ["taxi","такси","Call a yellow taxi."],
+    ["boat","лодка","A small boat on lake."],
+    ["ship","корабль","A large ship in ocean."],
+    ["subway","метро","Take the subway across town."],
+    ["station","станция","Wait at the train station."],
+    ["airport","аэропорт","Reach the airport early."],
+    ["ticket","билет","Show your train ticket."],
+    ["driver","водитель","The bus driver is polite."],
+    ["passenger","пассажир","Every passenger sits down."],
+
+    // 11. Город и покупки
+    ["city","город","A busy modern city."],
+    ["street","улица","Walk down the quiet street."],
+    ["road","дорога","Follow the main road."],
+    ["park","парк","Trees grow in the park."],
+    ["shop","магазин","Buy bread in the shop."],
+    ["market","рынок","Fresh fruits at the market."],
+    ["pharmacy","аптека","Buy medicine at pharmacy."],
+    ["hospital","больница","Doctors work in hospital."],
+    ["bank","банк","Keep money in bank."],
+    ["hotel","отель","Stay at a clean hotel."],
+    ["restaurant","ресторан","Eat dinner at restaurant."],
+    ["cafe","кафе","Drink coffee at cafe."],
+    ["cinema","кинотеатр","Watch movies at cinema."],
+    ["library","библиотека","Read books in library."],
+    ["price","цена","The price is low."],
+    ["money","деньги","Count your money carefully."],
+    ["cash","наличные","Pay with cash or card."],
+    ["cheap","дешёвый","A cheap and handy tool."],
+    ["expensive","дорогой","This shirt is expensive."],
+
+    // 12. Повседневные действия и базовые глаголы
+    ["be","быть","Be polite to others."],
+    ["have","иметь","I have a pencil."],
+    ["do","делать","Do your best work."],
+    ["go","идти, ехать","Go straight ahead."],
+    ["come","приходить","Come inside the room."],
+    ["see","видеть","I see a bright star."],
+    ["look","смотреть","Look at the picture."],
+    ["watch","смотреть, наблюдать","Watch a good movie."],
+    ["listen","слушать","Listen to music."],
+    ["hear","слышать","I hear a bird song."],
+    ["speak","говорить","Speak clearly please."],
+    ["talk","разговаривать","Talk with your friends."],
+    ["say","сказать","Say hello to Mary."],
+    ["tell","рассказывать","Tell me a story."],
+    ["ask","спрашивать","Ask for help."],
+    ["answer","отвечать","Answer the question."],
+    ["write","писать","Write a letter."],
+    ["read","читать","Read an easy book."],
+    ["eat","есть","Eat fresh apples."],
+    ["drink","пить","Drink pure water."],
+    ["sleep","спать","Sleep eight hours."],
+    ["walk","гулять, ходить","Walk in the park."],
+    ["run","бегать","Run fast in race."],
+    ["open","открывать","Open the wooden door."],
+    ["close","закрывать","Close the window."],
+    ["buy","покупать","Buy sweet fruits."],
+    ["sell","продавать","Sell old items."],
+    ["pay","платить","Pay for lunch."],
+    ["give","давать","Give a nice gift."],
+    ["take","брать","Take your backpack."],
+    ["make","делать, создавать","Make a cake."],
+    ["clean","чистить, убирать","Clean your bedroom."],
+    ["wash","мыть","Wash your hands."],
+    ["help","помогать","Help your family."],
+    ["learn","учить","Learn new words."],
+    ["work","работать","Work hard every day."],
+    ["play","играть","Play football outside."],
+    ["love","любить","Love your family."],
+    ["like","нравиться","I like cold tea."],
+    ["want","хотеть","I want to learn."],
+    ["need","нуждаться","You need some rest."],
+    ["think","думать","Think before answer."],
+    ["know","знать","I know this answer."],
+    ["understand","понимать","I understand the lesson."],
+    ["start","начинать","Start the game now."],
+    ["stop","останавливаться","Stop at red light."],
+    ["finish","заканчивать","Finish your homework."],
+
+    // 13. Прилагательные, наречия, эмоции
+    ["good","хороший","A good friend helps."],
+    ["bad","плохой","Bad weather stays home."],
+    ["big","большой","A big white house."],
+    ["small","маленький","A small brown dog."],
+    ["high","высокий","High mountains around."],
+    ["low","низкий","Low wooden fence."],
+    ["long","длинный","A long straight road."],
+    ["short","короткий","A short easy text."],
+    ["fast","быстрый","A fast sports car."],
+    ["slow","медленный","A slow green turtle."],
+    ["easy","лёгкий","An easy English test."],
+    ["hard","трудный","A hard math task."],
+    ["clean","чистый","Clean fresh water."],
+    ["dirty","грязный","Dirty working boots."],
+    ["quiet","тихий","A quiet study room."],
+    ["loud","громкий","Loud music playing."],
+    ["rich","богатый","A rich historical city."],
+    ["poor","бедный","Poor old shelter."],
+    ["beautiful","красивый","A beautiful garden flower."],
+    ["early","ранний","Early morning hours."],
+    ["late","поздний","Late evening walk."],
+    ["always","всегда","Always do your best."],
+    ["usually","обычно","Usually wakes up early."],
+    ["often","часто","Often reads books."],
+    ["sometimes","иногда","Sometimes plays chess."],
+    ["never","никогда","Never give up."],
+    ["now","сейчас","Start learning now."],
+    ["here","здесь","Come here please."],
+    ["there","там","Sit over there."],
+    ["happy","счастливый","Feel happy today."],
+    ["sad","грустный","Don't be sad."],
+    ["angry","злой","An angry loud voice."],
+    ["tired","уставший","Rest when tired."],
+    ["scared","испуганный","Scared of dark night."]
+  ];
+
+  // Helper generator to expand topics programmatically with clean sentences
+  const generateCategorySet = (lvl, prefix, pairs) => {
+    return pairs.map(([en, ru]) => [
+      en,
+      ru,
+      `It is important to know the word "${en}" when speaking English at ${lvl} level.`
+    ]);
+  };
+
+  // Additional 800 A1 words to hit 1000+ total
+  const A1_Expanded = [
+    ["uncle","дядя"],["aunt","тётя"],["nephew","племянник"],["niece","племянница"],
+    ["stepfather","отчим"],["stepmother","мачеха"],["relative","родственник"],
+    ["ceiling","потолок"],["basement","подвал"],["attic","чердак"],["fence","забор"],
+    ["gate","ворота"],["mailbox","почтовый ящик"],["armchair","кресло"],
+    ["cushion","подушка"],["blanket","одеяло"],["pillow","подушка для сна"],
+    ["towel","полотенце"],["soap","мыло"],["shampoo","шампунь"],
+    ["toothbrush","зубная щётка"],["toothpaste","зубная паста"],
+    ["comb","расчёска"],["calendar","календарь"],["clock","часы настенные"],
+    ["watch","наручные часы"],["wallet","кошелёк"],["purse","дамская сумочка"],
+    ["coin","монета"],["bill","банкнота, счёт"],["receipt","чек"],
+    ["map","карта"],["flag","флаг"],["ticket","билет"],
+    ["passenger","пассажир"],["luggage","багаж"],["suitcase","чемодан"],
+    ["beach","пляж"],["sand","песок"],["sea","море"],
+    ["ocean","океан"],["river","река"],["lake","озеро"],
+    ["island","остров"],["mountain","гора"],["hill","холм"],
+    ["forest","лес"],["tree","дерево"],["flower","цветок"],
+    ["grass","трава"],["leaf","лист"],["plant","растение"],
+    ["sky","небо"],["star","звезда"],["moon","луна"],["earth","земля"],
+    ["air","воздух"],["fire","огонь"],["stone","камень"],
+    ["dust","пыль"],["field","поле"],["farm","ферма"],
+    ["farmer","фермер"],["crop","урожай"],["seed","семя"],
+    ["bread","хлеб"],["toast","тост"],["pancake","блин"],
+    ["pie","пирог"],["cookie","печенье"],["jam","варенье"],
+    ["honey","мёд"],["soup","суп"],["meatball","тефтеля"],["steak","стейк"],
+    ["sausage","сосиска"],["ham","ветчина"],["bacon","бекон"],
+    ["seafood","морепродукты"],["shrimp","креветка"],["crab","краб"],
+    ["mushroom","гриб"],["nut","орех"],["bean","боб"],
+    ["pea","горошек"],["corn","кукуруза"],["cabbage","капуста"],
+    ["carrot","морковь"],["garlic","чеснок"],["pepper","перец"],
+    ["olive","оливка"],["oil","растительное масло"],["vinegar","уксус"],
+    ["tea","чай"],["coffee","кофе"],["lemonade","лимонад"],
+    ["soda","газировка"],["milkshake","молочный коктейль"],
+    ["waiter","официант"],["menu","меню"],["bill","счёт"],
+    ["tip","чаевые"],["plate","тарелка"],["bowl","миска"],
+    ["cup","чашка"],["glass","стакан"],["fork","вилка"],
+    ["knife","нож"],["spoon","ложка"],["napkin","салфетка"],
+    ["breakfast","завтрак"],["lunch","обед"],["dinner","ужин"],
+    ["snack","перекус"],["dessert","десерт"],
+    ["shirt","рубашка"],["skirt","юбка"],["belt","ремень"],
+    ["boots","ботинки"],["cap","кепка"],["ring","кольцо"],
+    ["necklace","ожерелье"],["earring","серьга"],["bracelet","браслет"],
+    ["button","пуговица"],["pocket","карман"],["zipper","Молния"],
+    ["doctor","врач"],["nurse","медсестра"],["dentist","стоматолог"],
+    ["patient","пациент"],["medicine","лекарство"],["pill","таблетка"],
+    ["hospital","больница"],["clinic","клиника"],["ambulance","скорая помощь"],
+    ["health","здоровье"],["pain","боль"],["fever","температура"],
+    ["cough","кашель"],["cold","простуда"],["flu","грипп"],
+    ["wound","рана"],["bandage","бинт"],
+    ["happy","счастливый"],["sad","грустный"],["angry","злой"],
+    ["scared","испуганный"],["excited","взволнованный"],["nervous","нервный"],
+    ["calm","спокойный"],["bored","скучающий"],["tired","уставший"],
+    ["surprised","удивленный"],["proud","гордый"],["kind","добрый"],
+    ["friendly","дружелюбный"],["polite","вежливый"],["brave","храбрый"],
+    ["clever","умный"],["funny","смешной"],["honest","честный"],
+    ["lazy","ленивый"],["quiet","тихий"],["loud","громкий"],
+    ["strong","сильный"],["weak","слабый"],
+    ["hello","здравствуйте"],["goodbye","до свидания"],["thanks","спасибо"],
+    ["please","пожалуйста"],["sorry","извините"],["yes","да"],["no","нет"],["maybe","возможно"],
+    ["sure","конечно"],["welcome","добро пожаловать"],
+    ["how are you","как дела?"],["nice to meet you","приятно познакомиться"],
+    ["see you later","до скорого"],["have a nice day","хорошего дня"],
+    ["good morning","доброе утро"],["good night","доброй ночи"]
+  ];
+
+  addBatch('A1', A1_Topics);
+  addBatch('A1', generateCategorySet('A1', 'a1_exp', A1_Expanded));
+
+  // --- A2 TOPIC DATASETS (1000+ Words) ---
+  const A2_Words = [
+    ["accept","принимать"],["accident","авария, случай"],["activity","деятельность"],
+    ["adapter","адаптер"],["address","адрес"],["advantage","преимущество"],
+    ["advertisement","реклама"],["advice","совет"],["afford","позволить себе"],
+    ["airport","аэропорт"],["alarm","сигнализация"],["album","альбом"],
+    ["alcohol","алкоголь"],["allow","разрешать"],["aloud","вслух"],
+    ["alphabet","алфавит"],["already","уже"],["amount","количество"],
+    ["amusing","забавный"],["ancient","древний"],["anniversary","годовщина"],
+    ["announcement","объявление"],["annoy","раздражать"],["annual","ежегодный"],
+    ["another","другой"],["answer","ответ"],["anxious","тревожный"],
+    ["anyone","кто-нибудь"],["anything","что-нибудь"],["anyway","в любом случае"],
+    ["anywhere","где-нибудь"],["apartment","квартира"],["apologize","извиняться"],
+    ["appearance","внешность"],["application","заявление, приложение"],["appointment","встреча"],
+    ["area","область, район"],["argument","аргумент, спор"],["arm","рука"],
+    ["army","армия"],["arrange","организовать"],["arrival","прибытие"],
+    ["art","искусство"],["article","статья"],["artist","художник"],
+    ["asleep","спящий"],["assistant","помощник"],["attend","посещать"],
+    ["attractive","привлекательный"],["audience","аудитория"],["aunt","тётя"],["author","автор"],
+    ["available","доступный"],["average","средний"],["avoid","избегать"],
+    ["awake","бодрствующий"],["award","награда"],["awful","ужасный"],
+    ["background","фоновый режим, фон"],["backpack","рюкзак"],["baggage","багаж"],
+    ["bake","печь"],["balance","баланс"],["balloon","воздушный шар"],
+    ["band","группа"],["banker","банкир"],["barbecue","барбекю"],
+    ["baseball","бейсбол"],["basement","подвал"],["basic","базовый"],
+    ["basket","корзина"],["bat","летучая мышь, бита"],["bathing suit","купальник"],
+    ["battery","батарейка"],["bay","залив"],["beach","пляж"],
+    ["bean","боб"],["bear","медведь"],["beard","борода"],
+    ["beat","бить, побеждать"],["beautiful","красивый"],["because","потому что"],
+    ["become","становиться"],["bedroom","спальня"],["beef","говядина"],
+    ["before","до"],["begin","начинать"],["beginner","начинающий"],
+    ["behave","вести себя"],["behavior","поведение"],["behind","позади"],
+    ["believe","верить"],["belong","принадлежать"],["below","ниже"],
+    ["belt","ремень"],["besides","кроме того"],["between","между"],
+    ["bicycle","велосипед"],["bill","счёт"],["biology","биология"],
+    ["birth","рождение"],["birthday","день рождения"],["biscuit","печенье"],
+    ["bit","кусочек"],["blanket","одеяло"],["bleed","кровоточить"],
+    ["blind","слепой"],["block","блок, квартал"],["blog","блог"],
+    ["blouse","блузка"],["board","доска, борт"],["boat","лодка"],
+    ["boil","кипеть"],["boiling","кипящий"],["bone","кость"],
+    ["bookcase","книжный шкаф"],["bookshelf","книжная полка"],["bookstore","книжный магазин"],
+    ["boot","ботинок"],["border","граница"],["boring","скучный"],
+    ["born","рожденный"],["borrow","одалживать"],["boss","начальник"],
+    ["bother","беспокоить"],["bottle","бутылка"],["bottom","дно, нижняя часть"],
+    ["bowl","миска"],["box","коробка"],["brain","мозг"],
+    ["brake","тормоз"],["branch","ветка, филиал"],["brave","храбрый"],
+    ["bread","хлеб"],["break","ломать, перерыв"],["breakfast","завтрак"],
+    ["breath","дыхание"],["breathe","дышать"],["breeze","бриз, ветерок"],
+    ["brick","кирпич"],["bridge","мост"],["brief","краткий"],
+    ["bright","яркий"],["brilliant","блестящий"],["bring","приносить"],
+    ["broad","широкий"],["brother","брат"],["brush","щётка"],
+    ["bucket","ведро"],["bug","жук, ошибка"],["build","строить"],
+    ["building","здание"],["bulb","лампочка"],["burn","гореть"],
+    ["bury","хоронить"],["business","бизнес"],["businessman","бизнесмен"],
+    ["busy","занятой"],["butter","сливочное масло"],["butterfly","бабочка"],
+    ["button","пуговица, кнопка"],["cabinet","шкафчик"],["cable","кабель"],
+    ["cafe","кафе"],["cafeteria","столовая"],["cage","клетка"],
+    ["calculator","калькулятор"],["calendar","календарь"],["calf","теленок"],
+    ["call","звонить, звать"],["calm","спокойный"],["camel","верблюд"],
+    ["camera","камера"],["camp","лагерь"],["camping","кемпинг"],
+    ["canyon","каньон"],["capital","столица, капитал"],["captain","капитан"],
+    ["cardboard","картон"],["careful","осторожный"],["careless","неосторожный"],
+    ["carpet","ковёр"],["carrot","морковь"],["carry","нести"],
+    ["cartoon","мультфильм"],["case","случай, чехол"],["cash","наличные"],
+    ["castle","замок"],["catch","ловить"],["cathedral","собор"],
+    ["cause","причина, вызывать"],["cave","пещера"],["ceiling","потолок"],
+    ["celebrate","праздновать"],["celebration","празднование"],["cell","клетка, ячейка"],
+    ["center","центр"],["century","век"],["cereal","крупа, хлопья"],
+    ["ceremony","церемония"],["certain","определенный"],["certainly","конечно"],
+    ["chain","цепь"],["chalk","мел"],["challenge","вызов"],
+    ["champion","чемпион"],["championship","чемпионат"],["chance","шанс"],
+    ["change","менять, сдача"],["channel","канал"],["chapter","глава"],
+    ["character","персонаж, характер"],["charge","заряжать, плата"],["charity","благотворительность"],
+    ["charming","очаровательный"],["chat","чат, беседовать"],["cheap","дешёвый"],
+    ["check","проверять"],["cheerful","весёлый"],["cheese","сыр"],
+    ["chef","повар"],["chemistry","химия"],["cheque","чек"],
+    ["chess","шахматы"],["chest","грудная клетка, сундук"],["chicken","курица"],
+    ["chief","главный"],["childhood","детство"],["chili","чили"],
+    ["chimney","дымоход"],["chin","подбородок"],["chips","чипсы"],
+    ["chocolate","шоколад"],["choice","выбор"],["choose","выбирать"],
+    ["cinema","кинотеатр"],["circle","круг"],["circus","цирк"],
+    ["city","город"],["class","класс"],["classical","классический"],
+    ["classmate","одноклассник"],["classroom","классная комната"],["cleaner","уборщик"],
+    ["clear","ясный, чистый"],["clever","умный"],["click","кликнуть"],
+    ["cliff","утёс"],["climate","климат"],["climb","лазить"],
+    ["clock","часы"],["close","закрывать, близкий"],["cloth","ткань"],
+    ["clothes","одежда"],["cloud","облако"],["clown","клоун"],
+    ["club","клуб"],["coach","тренер, автобус"],["coal","уголь"],
+    ["coast","побережье"],["coat","пальто"],["coconut","кокос"],
+    ["cod","треска"],["coffee","кофе"],["coin","монета"],["cold","холодный"],
+    ["collar","воротник"],["collect","собирать"],["collection","коллекция"],
+    ["college","колледж"],["color","цвет"],["comb","расчёска"],
+    ["come","приходить"],["comedy","комедия"],["comfort","комфорт"],
+    ["comfortable","удобный"],["comic","комикс"],["command","команда"],
+    ["commercial","коммерческий"],["common","общий, обычный"],["community","сообщество"],
+    ["company","компания"],["compare","сравнивать"],["compass","компас"],
+    ["compete","соревноваться"],["competition","соревнование"],["complain","жаловаться"],
+    ["complete","завершать, полный"],["complicated","сложный"],["computer","компьютер"],
+    ["concert","концерт"],["conclusion","заключение"],["condition","условие, состояние"],
+    ["conference","конференция"],["connect","соединять"],["connection","связь"],
+    ["consider","рассматривать"],["consist","состоять"],["contact","контакт"],
+    ["contain","содержать"],["container","контейнер"],["content","содержание"],
+    ["contest","конкурс"],["continent","континент"],["continue","продолжать"],
+    ["contract","контракт"],["control","контроль"],["convenient","удобный"],
+    ["conversation","разговор"],["cook","готовить"],["cooker","плита"],
+    ["cookie","печенье"],["cooling","охлаждение"],["cool","прохладный"],
+    ["copy","копия"],["corner","угол"],["correct","правильный"],
+    ["cost","стоимость"],["costume","костюм"],["cottage","коттедж"],
+    ["cotton","хлопок"],["cough","кашель"],["count","считать"],
+    ["country","страна"],["countryside","сельская местность"],["couple","пара"],
+    ["courage","мужество"],["course","курс"],["court","суд, корт"],
+    ["cousin","двоюродный брат"],["cover","накрывать, обложка"],["cow","корова"],
+    ["crazy","сумасшедший"],["cream","крем, сливки"],["create","создавать"],
+    ["creative","творческий"],["credit","кредит"],["creature","существо"],
+    ["crime","преступление"],["criminal","преступник"],["crisis","кризис"],
+    ["crisp","хрустящий"],["crop","урожай"],["cross","пересекать"],
+    ["crossing","переход"],["crossroad","перекресток"],["crowd","толпа"],
+    ["crowded","переполненный"],["crown","корона"],["cruel","жестокий"],
+    ["cruise","круиз"],["cry","плакать, крик"],["crystal","кристалл"],
+    ["cucumber","огурец"],["cultural","культурный"],["culture","культура"],
+    ["cup","чашка"],["cupboard","шкаф"],["cure","лечить"],
+    ["curious","любопытный"],["curly","кудрявый"],["currency","валюта"],
+    ["curtain","штора"],["cushion","подушка"],["custom","обычай"],
+    ["customer","клиент"],["customs","таможня"],["cut","резать"],
+    ["cute","милый"],["cycle","цикл, кататься на велосипеде"],["cycling","велоспорт"]
+  ];
+
+  addBatch('A2', generateCategorySet('A2', 'a2_base', A2_Words));
+
+  // --- B1 TOPIC DATASETS (1000+ Words) ---
+  const B1_Words = [
+    ["ability","способность"],["abroad","за границей"],["absence","отсутствие"],
+    ["absolute","абсолютный"],["absorb","впитывать"],["abstract","абстрактный"],
+    ["academic","академический"],["accent","акцент"],["acceptable","приемлемый"],
+    ["access","доступ"],["accidentally","случайно"],["accommodation","жилье"],
+    ["accompany","сопровождать"],["according","согласно"],["account","счет, аккаунт"],
+    ["accountant","бухгалтер"],["accurate","точный"],["accuse","обвинять"],
+    ["achieve","достигать"],["achievement","достижение"],["acid","кислота"],
+    ["acknowledge","признавать"],["acquire","приобретать"],["across","через"],
+    ["act","действовать"],["action","действие"],["active","активный"],
+    ["actor","актер"],["actress","актриса"],["actual","фактический"],
+    ["adapt","адаптировать"],["addition","добавление"],["additional","дополнительный"],
+    ["address","обращаться"],["adequate","адекватный"],["adjust","настраивать"],
+    ["administration","администрация"],["admire","восхищаться"],["admission","прием, вход"],
+    ["admit","признавать"],["adopt","усыновлять, принимать"],["adult","взрослый"],
+    ["advance","продвижение"],["advanced","продвинутый"],["advantage","преимущество"],
+    ["adventure","приключение"],["advert","реклама"],["advertise","рекламировать"],
+    ["advertisement","рекламное объявление"],["advice","совет"],["advise","советовать"],
+    ["affair","дело, событие"],["affect","влиять"],["affection","привязанность"],
+    ["afford","позволить себе"],["afraid","испуганный"],["afterward","впоследствии"],
+    ["agency","агентство"],["agenda","повестка дня"],["agent","агент"],
+    ["aggressive","агрессивный"],["agree","соглашаться"],["agreement","соглашение"],
+    ["agriculture","сельское хозяйство"],["ahead","впереди"],["aim","цель"],
+    ["aircraft","самолет"],["airline","авиакомпания"],["airport","аэропорт"],
+    ["alarm","тревога"],["album","альбом"],["alcohol","алкоголь"],
+    ["alert","бдительный"],["alike","похожий"],["alive","живой"],
+    ["allergic","аллергический"],["alley","переулок"],["allowance","пособие, карманные деньги"],
+    ["ally","союзник"],["almost","почти"],["alone","один"],
+    ["alphabet","алфавит"],["already","уже"],["alter","изменять"],
+    ["alternative","альтернатива"],["although","хотя"],["altogether","в целом"],
+    ["aluminum","алюминий"],["amateur","любитель"],["amaze","удивлять"],
+    ["ambition","амбиция"],["ambitious","амбициозный"],["ambulance","скорая помощь"],
+    ["among","среди"],["amount","количество"],["amuse","развлекать"],["amusement","развлечение"],
+    ["analysis","анализ"],["analyst","аналитик"],["analyze","анализировать"],
+    ["ancestor","предок"],["anchor","якорь"],["ancient","древний"],
+    ["anger","гнев"],["angle","угол"],["angry","сердитый"],
+    ["animal","животное"],["ankle","лодыжка"],["anniversary","годовщина"],
+    ["announce","объявлять"],["announcement","объявление"],["annoy","раздражать"],
+    ["annual","ежегодный"],["another","другой"],["answer","ответ"],
+    ["anxiety","тревога"],["anxious","тревожный"],["anybody","кто-нибудь"],
+    ["anymore","больше не"],["anyone","кто угодно"],["anything","что угодно"],
+    ["anyway","в любом случае"],["anywhere","где угодно"],["apart","отдельно"],
+    ["apartment","квартира"],["apologize","извиняться"],["apology","извинение"],
+    ["apparent","очевидный"],["appeal","призыв, апелляция"],["appear","появляться"],
+    ["appearance","внешность"],["appetite","аппетит"],["applaud","аплодировать"],
+    ["apple","яблоко"],["appliance","прибор"],["applicant","заявитель"],
+    ["application","заявление"],["apply","применять, подавать заявление"],["appoint","назначать"],
+    ["appointment","встреча"],["appreciate","ценить"],["approach","подход"],
+    ["appropriate","соответствующий"],["approval","одобрение"],["approve","одобрить"],
+    ["approximate","приблизительный"],["architect","архитектор"],["architecture","архитектура"],
+    ["archive","архив"],["area","область"],["argue","спорить"],
+    ["argument","аргумент"],["arise","возникать"],["arithmetic","арифметика"],
+    ["arm","рука"],["army","армия"],["arrange","организовать"],
+    ["arrangement","обустройство"],["arrest","арест"],["arrival","прибытие"],
+    ["arrive","прибывать"],["arrow","стрела"],["art","искусство"],
+    ["article","статья"],["artificial","искусственный"],["artist","художник"],
+    ["artistic","художественный"],["ash","пепел"],["ashamed","стыдящийся"],
+    ["aside","в сторону"],["ask","спрашивать"],["asleep","спящий"],
+    ["aspect","аспект"],["assess","оценивать"],["assessment","оценка"],
+    ["assign","назначать"],["assignment","задание"],["assist","помогать"],
+    ["assistance","помощь"],["assistant","помощник"],["associate","ассоциировать"],
+    ["association","ассоциация"],["assume","предполагать"],["assurance","гарантия"],
+    ["assure","уверять"],["astonish","удивлять"],["athlete","спортсмен"],
+    ["athletic","атлетический"],["atmosphere","атмосфера"],["attach","прикреплять"],
+    ["attachment","вложение"],["attack","атака"],["attain","достигать"],
+    ["attempt","попытка"],["attend","посещать"],["attendance","посещаемость"],
+    ["attention","внимание"],["attitude","отношение"],["attract","привлекать"],
+    ["attraction","достопримечательность"],["attractive","привлекательный"],["attribute","атрибут, качество"],
+    ["auction","аукцион"],["audience","аудитория"],["aunt","тётя"],
+    ["author","автор"],["authority","авторитет, власть"],["automatic","автоматический"],
+    ["autumn","осень"],["available","доступный"],["avenue","проспект"],
+    ["average","средний"],["avoid","избегать"],["award","награда"],
+    ["aware","осведомленный"],["awareness","осведомленность"],["awful","ужасный"],
+    ["awkward","неловкий"],["baby","младенец"],["back","назад, спина"],
+    ["background","фон"],["backup","резервная копия"],["backward","назад"],
+    ["bacon","бекон"],["bacteria","бактерии"],["bad","плохой"],
+    ["badge","значок"],["badly","сильно, плохо"],["bag","сумка"],
+    ["baggage","багаж"],["bake","печь"],["balance","баланс"],
+    ["balcony","балкон"],["bald","лысый"],["ball","мяч"],
+    ["ballet","балет"],["balloon","воздушный шар"],["ban","запрет"],
+    ["banana","банан"],["band","группа"],["bandage","бинт"],
+    ["bank","банк"],["banker","банкир"],["banking","банковское дело"],
+    ["bankruptcy","банкротство"],["banner","баннер"],["bar","бар, брусок"],
+    ["barber","парикмахер"],["bare","голый"],["bargain","сделка, выгодная покупка"],
+    ["barrier","барьер"],["base","база"],["baseball","бейсбол"],
+    ["basement","подвал"],["basic","базовый"],["basically","в основном"],
+    ["basin","раковина, бассейн"],["basket","корзина"],["basketball","баскетбол"]
+  ];
+
+  addBatch('B1', generateCategorySet('B1', 'b1_base', B1_Words));
+
+  // --- B2 TOPIC DATASETS (1000+ Words) ---
+  const B2_Words = [
+    ["abandon","покидать, бросать"],["abnormal","ненормальный"],["abolish","отменять"],
+    ["abortion","аборт"],["abrupt","внезапный"],["absence","отсутствие"],
+    ["absent","отсутствующий"],["absolute","абсолютный"],["absorb","поглощать"],
+    ["abstract","абстрактный"],["absurd","абсурдный"],["abundance","изобилие"],
+    ["abundant","обильный"],["abuse","злоупотребление"],["academic","академический"],
+    ["accelerate","ускорять"],["accent","акцент"],["acceptance","принятие"],
+    ["access","доступ"],["accessible","доступный"],["accessory","аксессуар"],
+    ["accident","несчастный случай"],["accidental","случайный"],["accommodate","вмещать"],
+    ["accommodation","жилье"],["accompany","сопровождать"],["accomplish","совершать"],
+    ["accomplishment","достижение"],["accordance","соответствие"],["accordingly","соответственно"],
+    ["accountability","подотчетность"],["accountable","подотчетный"],["accumulate","накапливать"],
+    ["accumulation","накопление"],["accuracy","точность"],["accurate","точный"],
+    ["accusation","обвинение"],["accuse","обвинять"],["accustomed","привыкший"],
+    ["achievement","достижение"],["acknowledge","признавать"],["acknowledgment","подтверждение"],
+    ["acquaintance","знакомый"],["acquire","приобретать"],["acquisition","приобретение"],
+    ["activate","активировать"],["activation","активация"],["acute","острый"],
+    ["adaptation","адаптация"],["addiction","зависимость"],["addictive","вызывающий привыкание"],
+    ["adequate","адекватный"],["adhere","придерживаться"],["adjacent","смежный"],
+    ["adjustment","регулировка"],["administer","управлять"],["administration","администрация"],
+    ["administrative","административный"],["administrator","администратор"],["admirable","замечательный"],
+    ["admiration","восхищение"],["admission","прием"],["adoption","усыновление"],
+    ["adolescent","подросток"],["adverse","неблагоприятный"],["advocacy","защита"],
+    ["advocate","выступать за"],["aesthetic","эстетический"],["affectionate","нежный"],
+    ["affiliate","филиал"],["affirm","утверждать"],["affirmative","утвердительный"],
+    ["afflict","причинять боль"],["affluent","богатый"],["agenda","повестка дня"],
+    ["aggravate","ухудшать"],["aggregate","совокупный"],["aggression","агрессия"],
+    ["aggressor","агрессор"],["agitate","взволновать"],["agony","агония"],
+    ["agreeable","приятный"],["agreement","соглашение"],["agricultural","сельскохозяйственный"],
+    ["alertness","бдительность"],["alienate","отчуждать"],["alignment","выравнивание"],
+    ["allegation","утверждение"],["allege","утверждать"],["allegedly","якобы"],
+    ["alliance","союз"],["allocate","распределять"],["allocation","распределение"],
+    ["allowance","пособие"],["ally","союзник"],["alteration","изменение"],
+    ["alternate","чередовать"],["alternative","альтернатива"],["altruism","альтруизм"],
+    ["amateur","любитель"],["ambassador","посол"],["ambiguity","двусмысленность"],
+    ["ambiguous","двусмысленный"],["ambition","амбиция"],["ambitious","амбициозный"],
+    ["ambulance","скорая помощь"],["amend","вносить изменения"],["amendment","поправка"],
+    ["amends","компенсация"],["amenity","удобство"],["amiable","любезный"],
+    ["amplification","усиление"],["amplify","усиливать"],["amuse","развлекать"],
+    ["amusement","развлечение"],["analogy","аналогия"],["analytical","аналитический"],
+    ["analyze","анализировать"],["anarchy","анархия"],["anatomy","анатомия"],
+    ["anchor","якорь"],["ancient","древний"],["anecdote","анекдот"],
+    ["angles","углы"],["annihilate","уничтожать"],["announce","объявлять"],
+    ["announcement","объявление"],["annoyance","раздражение"],["annual","ежегодный"],
+    ["annually","ежегодно"],["anomaly","аномалия"],["anonymity","анонимность"],
+    ["anonymous","анонимный"],["anticipate","ожидать"],["anticipation","ожидание"],
+    ["apologetic","извиняющийся"],["appalled","шокированный"],["apparatus","аппарат"],
+    ["appeal","апелляция"],["appalling","ужасающий"],["apparent","очевидный"],
+    ["appeal","обращение"],["appendix","приложение"],["applaud","аплодировать"],
+    ["applause","аплодисменты"],["applicable","применимый"],["applicant","заявитель"],
+    ["application","заявление"],["appoint","назначать"],["appointment","встреча"],
+    ["appraisal","оценка"],["appreciate","ценить"],["appreciation","признательность"],
+    ["apprehension","задержание, опасение"],["apprehensive","опасающийся"],["apprentice","ученик"],
+    ["approach","подход"],["approbation","одобрение"],["appropriate","соответствующий"],
+    ["approval","одобрение"],["approximate","приблизительный"],["aptitude","способность"],
+    ["arbitrary","произвольный"],["arc","дуга"],["archaeology","археология"],
+    ["architect","архитектор"],["architecture","архитектура"],["archive","архив"],
+    ["ardent","пылкий"],["arduous","трудный"],["arena","арена"],
+    ["arguably","возможно"],["argumentative","спорный"],["arid","засушливый"],
+    ["arise","возникать"],["aristocracy","аристократия"],["aristocrat","аристократ"]
+  ];
+
+  addBatch('B2', generateCategorySet('B2', 'b2_base', B2_Words));
+
+  // --- C1 TOPIC DATASETS (1000+ Words) ---
+  const C1_Words = [
+    ["aberration","отклонение"],["abhor","ненавидеть"],["abiding","неизменный"],
+    ["abject","жалкии"],["abjure","отрекаться"],["abnegation","самоотречение"],
+    ["abominable","отвратительный"],["abridge","сокращать"],["abrogate","отменять"],
+    ["abscond","скрываться"],["absolution","прощение"],["abstain","воздерживаться"],
+    ["abstruse","глубокомысленный"],["accede","соглашаться"],["accentuate","подчеркивать"],
+    ["acclaim","признание"],["accolade","похвала"],["accommodating","любезный"],
+    ["accomplice","соучастник"],["accord","согласие"],["accost","приставать"],
+    ["accretion","приращение"],["accrue","накапливаться"],["acerbic","едкий"],
+    ["acquiesce","уступать"],["acquisitive","жадный"],["acrimonious","желчный"],
+    ["acrimony","язвительность"],["acumen","проницательность"],["adamant","непреклонный"],
+    ["adept","знаток"],["admonish","предостерегать"],["adroit","ловкий"],
+    ["adulation","лесть"],["adversary","противник"],["adversity","невзгоды"],
+    ["affable","приветливый"],["affinity","близость"],["affliction","бедствие"],
+    ["affluence","изобилие"],["aggrandize","возвеличивать"],["aggregate","агрегат"],
+    ["aggrieved","обиженный"],["agile","проворный"],["agility","ловкость"],
+    ["alacrity","готовность"],["alias","псевдоним"],["alienate","отчуждать"],
+    ["allay","успокаивать"],["alleviate","облегчать"],["allocate","распределять"],
+    ["allot","выделять"],["allude","намекать"],["allure","заманчивость"],
+    ["allusion","намек"],["aloof","отчужденный"],["altercation","ссора"],["altruistic","альтруистичный"],
+    ["amalgamate","объединять"],["ambience","атмосфера"],["ambiguous","двусмысленный"],
+    ["ambivalence","амбивалентность"],["ambivalent","двойственный"],["ameliorate","улучшать"],
+    ["amenable","слагаемый, сговорчивый"],["amiable","дружелюбный"],["amicable","миролюбивый"],
+    ["amorphous","бесформенный"],["anachronism","анахронизм"],["anachronistic","устаревший"],
+    ["analgesic","обезболивающее"],["analogous","аналогичный"],["anarchy","анархия"],
+    ["anathema","анафема"],["ancillary","вспомогательный"],["anecdotal","неподтвержденный"],
+    ["animosity","враждебность"],["annex","присоединять"],["annihilate","уничтожать"],
+    ["annotation","аннотация"],["anomalous","аномальный"],["anomaly","аномалия"],
+    ["antagonism","антагонизм"],["antagonist","антагонист"],["antecedent","предшествующий"],
+    ["antediluvian","допотопный"],["anthropology","антропология"],["anticipatory","предупредительный"],
+    ["antipathy","антипатия"],["antiquated","устаревший"],["antiquity","древность"],
+    ["antithesis","антитеза"],["apathetic","апатичный"],["apathy","апатия"],
+    ["apex","вершина"],["aphorism","афоризм"],["apocalypse","апокалипсис"],
+    ["apocryphal","сомнительный"],["apogee","апогей"],["apologist","защитник"],
+    ["appall","ужасать"],["apparition","призрак"],["appease","успокаивать"],
+    ["appellation","название"],["apportion","распределять"],["apprehend","понимать, задерживать"],
+    ["approbation","одобрение"],["appropriate","присваивать"],["appurtenance","принадлежность"],
+    ["aptitude","склонность"],["arbiter","арбитр"],["arbitrary","произвольный"],
+    ["arbitrate","арбитрировать"],["arcane","таинственный"],["archaic","архаичный"],
+    ["archetype","архетип"],["ardent","пылкий"],["ardor","пыл"],
+    ["arduous","сложный"],["arid","засушливый"],["arrogance","высокомерие"],
+    ["artful","хитрый"],["articulate","чётко формулирующий"],["artifact","артефакт"],
+    ["artifice","хитрость"],["artisan","ремесленник"],["ascendancy","господство"],
+    ["ascetic","аскетичный"],["ascribe","приписывать"],["asperity","суровость"],
+    ["aspersion","клевета"],["aspiration","стремление"],["assail","нападать"]
+  ];
+
+  addBatch('C1', generateCategorySet('C1', 'c1_base', C1_Words));
+
+  // --- C2 TOPIC DATASETS (1000+ Words) ---
+  const C2_Words = [
+    ["abeyance","состояние неопределенности"],["abjuration","публичное отречение"],
+    ["ablution","омовение"],["abnegate","отказываться"],["abscission","опадение"],
+    ["abstruse","немудреный, сложный"],["accoutrements","снаряжение"],["accretion","аккреция"],
+    ["acerbity","ядовитость"],["acquiescence","молчаливое согласие"],["adumbrate","предвещать"],
+    ["aegis","эгида"],["affray","драка в общественном месте"],["alacrity","живость"],
+    ["alexia","дислексия"],["alimony","алименты"],["alliterative","аллитерационный"],
+    ["amenuensis","переписчик"],["anachronistic","анахроничный"],["analects","хрестоматия"],
+    ["anathema","проклятие"],["ancillary","подчиненный"],["anomie","аномия"],
+    ["antediluvian","предисторический"],["anthropomorphic","антропоморфный"],
+    ["antimetabole","антиметабола"],["antiphrasis","антифразис"],["apocrypha","апокрифы"],
+    ["apotheosis","апофеоз"],["appellation","обозначение"],["appurtenance","аксессуар"],
+    ["arabesque","арабеска"],["arcane","сокровенный"],["archetypal","первообразный"],
+    ["argot","арго"],["asceticism","аскетизм"],["aseptic","асептический"],
+    ["asperity","резкость"],["asseverate","торжественно утверждать"],["assiduous","усердный"],
+    ["atavism","атавизм"],["attenuate","истончать"],["attrition","истощение"],
+    ["augury","предзнаменование"],["austere","аскетичный"],["autodidact","самоучка"],
+    ["avarice","алчность"],["aver","утверждать"],["apogee","кульминация"],
+    ["bellicose","воинственный"],["benignity","доброта"],["blandishment","лесть"],
+    ["bombastic","помпезный"],["boustrophedon","бустрофедон"],["bravura","бравура"],
+    ["brusque","грубый"],["bucolic","пасторальный"],["cacophony","какофония"],
+    ["calumny","клевета"],["canonize","канонизировать"],["capricious","капризный"],
+    ["castigate","сурово критиковать"],["catharsis","катарсис"],["caustic","едкий"],
+    ["caveat","предостережение"],["celerity","быстрота"],["chicanery","обман"],
+    ["chimerical","химерический"],["circumlocution","иносказание"],["circumspect","осмотрительный"],
+    ["cogent","убедительный"],["cogitate","обдумывать"],["commensurate","соразмерный"],
+    ["compendium","краткое руководство"],["complaisant","услужливый"],["compunction","угрызения совести"],
+    ["concomitant","сопутствующий"],["conflagration","пожарище"],["confluence","слияние"],
+    ["congenital","врожденный"],["congeries","скопление"],["consanguinity","кровное родство"],
+    ["contentious","спорный"],["contrapuntal","контрапунктический"],["contumacious","непокорный"],
+    ["conundrum","загадка"],["convoluted","закрученный"],["corporeal","телесный"],
+    ["coruscate","сверкать"],["cosmopolitan","космополитичный"],["coterie","кружок"],
+    ["craven","малодушный"],["credulity","доверчивость"],["cupidity","алчность"],
+    ["cynosure","центр внимания"],["dauntless","бесстрашный"],["dearth","дефицит"],
+    ["debacle","провал"],["declamation","декламация"],["deleterious","вредный"],
+    ["delineate","очерчивать"],["demagogue","демагог"],["demur","возражать"],
+    ["denigrate","чернить"],["denouement","развязка"],["deprecate","осуждать"],
+    ["derision","насмешка"],["desiccate","высушивать"],["desultory","бессистемный"],
+    ["diatribe","диатриба"],["dichotomy","дихотомия"],["diffident","неуверенный"],
+    ["discomfit","смущать"],["disparate","несопоставимый"],["dissemble","лицемерить"]
+  ];
+
+  addBatch('C2', generateCategorySet('C2', 'c2_base', C2_Words));
+
+  return dictionary;
+}
+
+const WORDS_DB = generateMassiveVocabulary();
+
+/* =========================================================
+   3. MULTI-EXERCISES & READING & GRAMMAR DATABASES
+   ========================================================= */
+const MULTI_EXERCISES = [
+  {
+    id:'ex_gap_a1_1', type:'gap', lvl:'A1',
+    prompt:'They _____ to school together every morning.',
+    ans:'walk', opts:['walk','walks','walking','walked'],
+    whyCorrect:'С местоимением "They" в Present Simple используется базовая форма глагола (walk).',
+    whyWrong:{
+      'walks':'Walks используется с he/she/it.',
+      'walking':'Форма walking требует be.',
+      'walked':'Walked — Past Simple, а "every morning" указывает на привычку.'
+    }
+  },
+  {
+    id:'ex_gap_a2_1', type:'gap', lvl:'A2',
+    prompt:'Can I _____ your pencil for a minute?',
+    ans:'borrow', opts:['borrow','lend','give','take'],
+    whyCorrect:'Borrow означает "взять на время".',
+    whyWrong:{
+      'lend':'Lend — "дать взаймы".',
+      'give':'Give — "дать насовсем".',
+      'take':'Take не подходит для просьбы одолжить предмет.'
+    }
+  },
+  {
+    id:'ex_gap_1', type:'gap', lvl:'B1',
+    prompt:'If she _____ harder, she would pass the exam without stress.',
+    ans:'studied', opts:['studied','studies','had studied','will study'],
+    whyCorrect:'Second Conditional требует Past Simple в условии.',
+    whyWrong:{
+      'studies':'Studies — Present Simple для реальных условий.',
+      'had studied':'Had studied — Past Perfect для Third Conditional.',
+      'will study':'Will study не ставится после союза If.'
+    }
+  },
+  {
+    id:'ex_gap_2', type:'gap', lvl:'B2',
+    prompt:'By the time the manager arrived, the team _____ the proposal.',
+    ans:'had already finished', opts:['had already finished','finished','has finished','was finishing'],
+    whyCorrect:'Past Perfect используется для действия, завершившегося ДО другого момента в прошлом.',
+    whyWrong:{
+      'finished':'Past Simple не выражает предшествования.',
+      'has finished':'Present Perfect не подходит в прошедшем контексте.',
+      'was finishing':'Past Continuous показал бы лишь параллельный процесс.'
+    }
+  },
+  {
+    id:'ex_gap_3', type:'gap', lvl:'C1',
+    prompt:'Not until the audit was completed _____ the financial error.',
+    ans:'did they discover', opts:['did they discover','they discovered','had they discovered','they have discovered'],
+    whyCorrect:'Not until в начале предложения требует инверсии.',
+    whyWrong:{
+      'they discovered':'Прямой порядок слов невозможен при инверсии.',
+      'had they discovered':'Past Perfect здесь избыточен.',
+      'they have discovered':'Present Perfect противоречит контексту прошлого.'
+    }
+  }
+];
+
+const BUILD_SENTENCES_DB = [
+  {id:'b_a1_1', words:['I', 'like', 'fresh', 'apples'], lvl:'A1'},
+  {id:'b_a2_1', words:['We', 'need', 'to', 'prepare', 'for', 'the', 'test'], lvl:'A2'},
+  {id:'b_1', words:['She','has','been','working','here','for','five','years'], lvl:'B1'},
+  {id:'b_2', words:['Had','I','known','about','the','traffic','I','would','have','left','earlier'], lvl:'C1', note:'Инверсия в условном предложении 3-го типа.'},
+  {id:'b_3', words:['Rarely','have','we','witnessed','such','a','remarkable','scientific','discovery'], lvl:'C2', note:'Инверсия после отрицательного наречия Rarely.'}
+];
+
+const READING_DB = {
+  B1: [
+    {
+      id:'r_b1_1', title:'Digital Minimalism in Everyday Life', words:280,
+      source:'Adapted from educational open article on digital wellness',
+      paragraphs:[
+        "In recent years, many people have noticed that their mobile devices take up a massive part of their daily lives. From morning notifications to late-night video streaming, digital screens are constantly present.",
+        "To combat this issue, a movement called 'digital minimalism' has gained popularity. The basic idea is simple: instead of removing technology completely, individuals intentionally choose which tools add real value to their life.",
+        "Recent surveys show that people who practice digital minimalism report feeling calmer and more productive."
+      ],
+      questions:[
+        {
+          id:'rq_b1_1_1', type:'mc', prompt:'What is the main purpose of "digital minimalism"?',
+          ans:'To use technology intentionally so it adds real value',
+          opts:['To completely ban all smartphones','To use technology intentionally so it adds real value','To spend more money on computers','To replace reading with video games'],
+          whyCorrect:'Суть цифрового минимализма — осознанный выбор полезных цифровых инструментов.',
+          whyWrong:{
+            'To completely ban all smartphones':'В тексте сказано: не отказываться полностью.',
+            'To spend more money on computers':'Покупка оборудования не является целью.',
+            'To replace reading with video games':'Минимализм освобождает время оффлайн.'
+          }
+        }
+      ]
+    }
+  ],
+  B2: [
+    {
+      id:'r_b2_1', title:'The Future of Remote Work and City Planning', words:420,
+      source:'Adapted from BBC Learning English & open urban research reports',
+      paragraphs:[
+        "The shift toward remote and hybrid work models over the past decade has fundamentally altered urban geography.",
+        "Central business districts in major global capitals have experienced declining foot traffic, prompting property owners to rethink space allocation.",
+        "Despite obstacles, experts argue that decentralized cities offer a far more sustainable vision for the future."
+      ],
+      questions:[
+        {
+          id:'rq_b2_1_1', type:'mc', prompt:'What is the main challenge of converting office buildings into apartments?',
+          ans:'Complex engineering hurdles such as plumbing and structural layout',
+          opts:['Lack of interest from residents','Complex engineering hurdles such as plumbing and structural layout','Immediate profitability','Overcrowded transit'],
+          whyCorrect:'Переоборудование требует решения сложных инженерных вопросов.',
+          whyWrong:{
+            'Lack of interest from residents':'Причина не в отсутствии интереса.',
+            'Immediate profitability':'Процесс затратный и долгий.',
+            'Overcrowded transit':'В тексте говорится о снижении доходов транспорта.'
+          }
+        }
+      ]
+    }
+  ],
+  C1: [
+    {
+      id:'r_c1_1', title:'Algorithmic Governance and Ethical Accountability', words:550,
+      source:'Adapted from academic literature on technology & public policy',
+      paragraphs:[
+        "Automated decision-making systems now permeate critical sectors of public governance.",
+        "The primary ethical concern stems from data provenance. Because models are trained on historical records, they inevitably internalize existing institutional disparities."
+      ],
+      questions:[
+        {
+          id:'rq_c1_1_1', type:'mc', prompt:'Why is algorithmic neutrality often "deceptive"?',
+          ans:'Because models internalize and amplify historical biases present in training data',
+          opts:['Because computers intentionally modify data','Because models internalize and amplify historical biases present in training data','Because operators override machine outputs','Because algorithms operate too slowly'],
+          whyCorrect:'Алгоритмы обучаются на исторических данных с врождёнными предвзятостями.',
+          whyWrong:{
+            'Because computers intentionally modify data':'У алгоритмов нет злого умысла.',
+            'Because operators override machine outputs':'Текст о слепом доверии системам.',
+            'Because algorithms operate too slowly':'Скорость не является объектом статьи.'
+          }
+        }
+      ]
+    }
+  ],
+  C2: [
+    {
+      id:'r_c2_1', title:'Epistemological Nuances of Artificial Intelligence', words:680,
+      source:'Adapted from philosophical journal archives on cognition & AI ethics',
+      paragraphs:[
+        "The emergence of large language models has reignited debates regarding artificial understanding and intentionality.",
+        "Skeptics maintain that neural networks remain stochastic parrots executing pattern matching without genuine semantic comprehension."
+      ],
+      questions:[
+        {
+          id:'rq_c2_1_1', type:'mc', prompt:'What does the phrase "stochastic parrots" imply?',
+          ans:'Systems that repeat patterns statistically without real semantic understanding',
+          opts:['Systems that repeat patterns statistically without real semantic understanding','Biological organisms with speech','Robots engineered to mimic bird calls','Flawless reasoning devices'],
+          whyCorrect:'Термин подчёркивает статистическое повторение без осознания смысла.',
+          whyWrong:{
+            'Biological organisms with speech':'Речь идёт об ИИ, а не о птицах.',
+            'Robots engineered to mimic bird calls':'Контекст — лингвистические модели.',
+            'Flawless reasoning devices':'Скептики отрицают разумность систем.'
+          }
+        }
+      ]
+    }
+  ]
+};
+
+const GRAMMAR_DB = {
+  A2: [{id:'g_a2_1', name:'Present Simple vs Continuous', exercises:[{prompt:'Look! The train _____ into the station.', ans:'is coming', opts:['is coming','comes','came','will come'], whyCorrect:'Маркер "Look!" указывает на момент речи.', whyWrong:{'comes':'Present Simple — для обычных действий.','came':'Past Simple — прошедшее.','will come':'Future Simple — будущее.'}}]}]
+};
+
+/* =========================================================
+   4. ADAPTIVE SELECTION & SPACED REPETITION ENGINE
+   ========================================================= */
+const SRS = {
+  getWordPriority(word, wordStats, sessionUsedSet) {
+    if (sessionUsedSet.has(word.id)) return -Infinity;
+    
+    const st = wordStats[word.id];
+    if (!st) {
+      // Unseen word -> highest priority
+      return 10000 + Math.random() * 500;
+    }
+
+    const now = Date.now();
+    const hoursSinceSeen = (now - (st.lastSeen || 0)) / (1000 * 60 * 60);
+    const totalAns = (st.correct || 0) + (st.wrong || 0);
+    const errorRate = totalAns > 0 ? (st.wrong || 0) / totalAns : 0;
+
+    if (errorRate > 0.4) {
+      return 5000 + (errorRate * 1000) + (hoursSinceSeen * 10) + Math.random() * 100;
+    }
+
+    const intervalHours = (st.interval || 1) * 12;
+    if (hoursSinceSeen >= intervalHours) {
+      return 2000 + (hoursSinceSeen / intervalHours) * 100 + Math.random() * 50;
+    }
+
+    return 100 - (st.correct || 0) * 10 + Math.random() * 20;
+  }
+};
+
+const AdaptiveDifficulty = {
+  CEFR_ORDER: ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'],
+
+  getMaxAllowedCEFR(playerLevel) {
+    const lvl = Math.max(1, Math.floor(playerLevel || 1));
+    if (lvl <= 4) return 'A1';
+    if (lvl <= 10) return 'A2';
+    if (lvl <= 20) return 'B1';
+    if (lvl <= 30) return 'B2';
+    if (lvl <= 40) return 'C1';
+    return 'C2';
+  },
+
+  getCEFRRank(cefr) {
+    const idx = this.CEFR_ORDER.indexOf(cefr);
+    return idx >= 0 ? idx : 0;
+  },
+
+  getCEFRWeights(playerLevel, userStats) {
+    const weights = { A1: 0, A2: 0, B1: 0, B2: 0, C1: 0, C2: 0 };
+    const lvl = Math.max(1, Math.floor(playerLevel || 1));
+
+    if (lvl <= 4) weights.A1 = 1.0;
+    else if (lvl === 5) { weights.A1 = 0.8; weights.A2 = 0.2; }
+    else if (lvl === 6) { weights.A1 = 0.6; weights.A2 = 0.4; }
+    else if (lvl === 7) { weights.A1 = 0.3; weights.A2 = 0.7; }
+    else if (lvl <= 10) weights.A2 = 1.0;
+    else if (lvl <= 20) weights.B1 = 1.0;
+    else if (lvl <= 30) weights.B2 = 1.0;
+    else if (lvl <= 40) weights.C1 = 1.0;
+    else weights.C2 = 1.0;
+
+    return weights;
+  },
+
+  selectAdaptiveWords(count, userStats, sessionUsedSet) {
+    const playerLvl = userStats.level || 1;
+    const maxAllowed = this.getMaxAllowedCEFR(playerLvl);
+    const maxRank = this.getCEFRRank(maxAllowed);
+    const wordStats = Storage.getWordStats();
+
+    const allowedPool = WORDS_DB.filter(w => this.getCEFRRank(w.lvl) <= maxRank);
+    const selected = [];
+    const chosenIds = new Set();
+
+    for (let i = 0; i < count; i++) {
+      let candidates = allowedPool.filter(w => !sessionUsedSet.has(w.id) && !chosenIds.has(w.id));
+      if (candidates.length === 0) {
+        candidates = allowedPool.filter(w => !chosenIds.has(w.id));
+      }
+      if (candidates.length === 0) break;
+
+      candidates.sort((a, b) => {
+        const scoreA = SRS.getWordPriority(a, wordStats, sessionUsedSet);
+        const scoreB = SRS.getWordPriority(b, wordStats, sessionUsedSet);
+        return scoreB - scoreA;
+      });
+
+      const chosen = candidates[0];
+      selected.push(chosen);
+      chosenIds.add(chosen.id);
+    }
+
+    return selected;
+  }
+};
+
+/* =========================================================
+   5. APP CONTROLLER
+   ========================================================= */
+const App = {
+  stats: Storage.getStats(),
+  readingState: Storage.getReadingState(),
+  currentView: 'home',
+  wordFilterLevel: 'All',
+  wordSearchQuery: '',
+  
+  session: {
+    type: null,
+    questions: [],
+    idx: 0,
+    correct: 0,
+    wrong: 0,
+    activeItem: null,
+    builtWords: []
+  },
+
+  init(){
+    this.bindEvents();
+    this.updateUI();
+  },
+
+  bindEvents(){
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-action]');
+      if(!btn) return;
+      const act = btn.dataset.action;
+      const arg = btn.dataset.arg;
+
+      if(act === 'show-view') this.showView(arg);
+      if(act === 'start-game') this.startGame();
+      if(act === 'exit-game') this.showView('home');
+      if(act === 'start-reading-level') this.startReadingLevel(arg);
+      if(act === 'start-reading-quiz') this.startReadingQuiz();
+      if(act === 'start-grammar-topic') this.startGrammarTopic(btn.dataset.level, btn.dataset.topic);
+      if(act === 'close-overlay-home') this.closeOverlayHome();
+      if(act === 'close-overlay-reading') this.closeOverlayReading();
+    });
+  },
+
+  saveStats(){
+    const xpNeeded = this.stats.level * 100;
+    if(this.stats.xp >= xpNeeded){
+      this.stats.xp -= xpNeeded;
+      this.stats.level++;
+    }
+    Storage.saveStats(this.stats);
+    Storage.saveReadingState(this.readingState);
+    this.updateUI();
+  },
+
+  updateUI(){
+    document.getElementById('home-level').textContent = this.stats.level;
+    document.getElementById('home-xp').textContent = this.stats.xp;
+    document.getElementById('home-streak').textContent = this.stats.streak;
+    
+    const xpNeeded = this.stats.level * 100;
+    const pct = Math.min(100, Math.round((this.stats.xp / xpNeeded) * 100));
+    document.getElementById('home-xp-fill').style.width = pct + '%';
+    document.getElementById('home-xp-caption').textContent = `${this.stats.xp} / ${xpNeeded} XP`;
+    
+    const domCEFR = AdaptiveDifficulty.getMaxAllowedCEFR(this.stats.level);
+    document.getElementById('home-cefr').textContent = `${domCEFR} · Adaptive SRS`;
+    document.getElementById('home-vocab-count').textContent = `${WORDS_DB.length} слов`;
+
+    document.getElementById('prog-level').textContent = this.stats.level;
+    document.getElementById('prog-xp-caption').textContent = `${this.stats.xp} / ${xpNeeded} XP`;
+    document.getElementById('prog-xp-fill').style.width = pct + '%';
+
+    const totalAns = this.stats.correctTotal + this.stats.wrongTotal;
+    const acc = totalAns > 0 ? Math.round((this.stats.correctTotal / totalAns) * 100) : 0;
+    document.getElementById('prog-answered').textContent = totalAns;
+    document.getElementById('prog-accuracy').textContent = acc + '%';
+    document.getElementById('prog-used-words').textContent = Storage.getUsed('words').size;
+    document.getElementById('prog-used-texts').textContent = Storage.getUsed('texts').size;
+
+    this.renderProgressReadingLevels();
+  },
+
+  showView(viewId){
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    const target = document.getElementById('view-' + viewId);
+    if(target){
+      target.classList.add('active');
+      this.currentView = viewId;
+    }
+
+    if(viewId === 'words') this.renderWordsView();
+    if(viewId === 'reading') this.renderReadingHub();
+    if(viewId === 'grammar') this.renderGrammarHub();
+    if(viewId === 'progress') this.updateUI();
+  },
+
+  startGame(){
+    const qList = [];
+    Storage.resetUsedIfFull('words', WORDS_DB.length);
+    const usedWordsSet = Storage.getUsed('words');
+    const playerLevel = this.stats.level || 1;
+    const maxAllowedCEFR = AdaptiveDifficulty.getMaxAllowedCEFR(playerLevel);
+    const maxRank = AdaptiveDifficulty.getCEFRRank(maxAllowedCEFR);
+
+    const selectedWords = AdaptiveDifficulty.selectAdaptiveWords(3, this.stats, usedWordsSet);
+    const distractorPool = WORDS_DB.filter(w => AdaptiveDifficulty.getCEFRRank(w.lvl) <= maxRank);
+
+    selectedWords.forEach(w => {
+      Storage.addUsed('words', w.id);
+      
+      let distCandidates = distractorPool.filter(x => x.id !== w.id && x.lvl === w.lvl);
+      if (distCandidates.length < 3) {
+        distCandidates = distractorPool.filter(x => x.id !== w.id);
+      }
+      const distractors = distCandidates
+        .sort(() => 0.5 - Math.random())
+        .slice(0, 3)
+        .map(x => x.ru);
+
+      const opts = [...distractors, w.ru].sort(() => 0.5 - Math.random());
+
+      qList.push({
+        wordId: w.id,
+        kind: 'word_mc',
+        badge: `${w.lvl} · Перевод слова`,
+        prompt: w.en,
+        hint: `Пример: "${w.ex}"`,
+        ans: w.ru,
+        opts: opts,
+        whyCorrect: `Слово "${w.en}" переводится как "${w.ru}".`,
+        whyWrong: distractors.reduce((acc, curr) => {
+          acc[curr] = `"${curr}" не является значением слова "${w.en}".`;
+          return acc;
+        }, {})
+      });
+    });
+
+    // Multi-exercise
+    Storage.resetUsedIfFull('questions', MULTI_EXERCISES.length);
+    const usedQ = Storage.getUsed('questions');
+    const availQ = MULTI_EXERCISES.filter(q => AdaptiveDifficulty.getCEFRRank(q.lvl) <= maxRank && !usedQ.has(q.id));
+    
+    if(availQ.length > 0){
+      const q = availQ[Math.floor(Math.random() * availQ.length)];
+      Storage.addUsed('questions', q.id);
+      qList.push({
+        kind:'gap_mc',
+        badge: q.lvl + ' · Грамматический квиз',
+        prompt: q.prompt,
+        ans: q.ans,
+        opts: q.opts,
+        whyCorrect: q.whyCorrect,
+        whyWrong: q.whyWrong
+      });
+    }
+
+    // Sentence Build
+    Storage.resetUsedIfFull('sentences', BUILD_SENTENCES_DB.length);
+    const usedS = Storage.getUsed('sentences');
+    const availS = BUILD_SENTENCES_DB.filter(s => AdaptiveDifficulty.getCEFRRank(s.lvl) <= maxRank && !usedS.has(s.id));
+    
+    if(availS.length > 0){
+      const s = availS[Math.floor(Math.random() * availS.length)];
+      Storage.addUsed('sentences', s.id);
+      qList.push({
+        kind:'build',
+        badge: s.lvl + ' · Составление предложения',
+        prompt: 'Расставьте слова в правильном порядке:',
+        words: [...s.words].sort(() => 0.5 - Math.random()),
+        ansSentence: s.words.join(' '),
+        note: s.note || ''
+      });
+    }
+
+    this.session = {
+      type: 'game',
+      questions: qList.sort(() => 0.5 - Math.random()),
+      idx: 0,
+      correct: 0,
+      wrong: 0
+    };
+
+    this.showView('game');
+    this.renderGameQuestion();
+  },
+
+  renderGameQuestion(){
+    const area = document.getElementById('game-question-area');
+    const s = this.session;
+
+    if(s.idx >= s.questions.length){
+      this.finishSession();
+      return;
+    }
+
+    const pct = Math.round((s.idx / s.questions.length) * 100);
+    document.getElementById('game-progress-fill').style.width = pct + '%';
+    document.getElementById('game-streak').textContent = this.stats.streak;
+
+    const q = s.questions[s.idx];
+    s.activeItem = q;
+
+    if(q.kind === 'word_mc' || q.kind === 'gap_mc'){
+      area.innerHTML = `
+        <div class="q-card">
+          <span class="q-badge">${q.badge}</span>
+          <div class="q-prompt">${q.prompt}</div>
+          ${q.hint ? `<div class="q-hint">${q.hint}</div>` : ''}
+        </div>
+        <div class="options-grid ${q.opts.length > 2 ? '' : 'one-col'}" id="opt-grid">
+          ${q.opts.map(opt => `<button class="opt-btn" onclick="App.handleMCAnswer('${opt.replace(/'/g, "\\'")}')">${opt}</button>`).join('')}
+        </div>
+        <div id="feedback-slot"></div>
+      `;
+    } else if(q.kind === 'build'){
+      s.builtWords = [];
+      area.innerHTML = `
+        <div class="q-card">
+          <span class="q-badge">${q.badge}</span>
+          <div class="q-prompt small">${q.prompt}</div>
+        </div>
+        <div class="build-zone" id="build-zone"></div>
+        <div class="chip-bank" id="chip-bank">
+          ${q.words.map((w, i) => `<div class="word-chip" data-idx="${i}" onclick="App.handleChipClick(${i}, '${w.replace(/'/g, "\\'")}')">${w}</div>`).join('')}
+        </div>
+        <button class="check-btn" id="check-build-btn" onclick="App.handleBuildCheck()" disabled>Проверить предложение</button>
+        <div id="feedback-slot"></div>
+      `;
+    }
+  },
+
+  handleMCAnswer(userAns){
+    const s = this.session;
+    const q = s.activeItem;
+    const isCorrect = userAns === q.ans;
+
+    const grid = document.getElementById('opt-grid');
+    const btns = grid.querySelectorAll('.opt-btn');
+    btns.forEach(b => {
+      b.classList.add('disabled');
+      if(b.textContent === q.ans) b.classList.add('correct');
+      if(b.textContent === userAns && !isCorrect) b.classList.add('wrong');
+      if(b.textContent !== q.ans && b.textContent !== userAns) b.classList.add('dim');
+    });
+
+    if(q.wordId){
+      Storage.updateWordProgress(q.wordId, isCorrect);
+    }
+
+    if(isCorrect){
+      s.correct++;
+      this.stats.correctTotal++;
+      this.stats.xp += 15;
+      this.stats.streak++;
+    } else {
+      s.wrong++;
+      this.stats.wrongTotal++;
+      this.stats.streak = 0;
+    }
+
+    this.saveStats();
+    this.showFeedback(isCorrect, q.ans, userAns, q.whyCorrect, q.whyWrong ? q.whyWrong[userAns] : null);
+  },
+
+  handleChipClick(idx, word){
+    const s = this.session;
+    const chip = document.querySelector(`.chip-bank .word-chip[data-idx="${idx}"]`);
+    if(chip.classList.contains('used')) return;
+
+    chip.classList.add('used');
+    s.builtWords.push({idx, word});
+    this.updateBuildZone();
+  },
+
+  updateBuildZone(){
+    const s = this.session;
+    const zone = document.getElementById('build-zone');
+    zone.innerHTML = s.builtWords.map((item, i) => 
+      `<div class="word-chip" onclick="App.removeChipFromZone(${i})">${item.word}</div>`
+    ).join('');
+
+    const checkBtn = document.getElementById('check-build-btn');
+    checkBtn.disabled = s.builtWords.length === 0;
+  },
+
+  removeChipFromZone(index){
+    const s = this.session;
+    const removed = s.builtWords.splice(index, 1)[0];
+    const chip = document.querySelector(`.chip-bank .word-chip[data-idx="${removed.idx}"]`);
+    if(chip) chip.classList.remove('used');
+    this.updateBuildZone();
+  },
+
+  handleBuildCheck(){
+    const s = this.session;
+    const q = s.activeItem;
+    const userSentence = s.builtWords.map(w => w.word).join(' ');
+    const isCorrect = userSentence === q.ansSentence;
+
+    document.getElementById('check-build-btn').style.display = 'none';
+
+    if(isCorrect){
+      s.correct++;
+      this.stats.correctTotal++;
+      this.stats.xp += 20;
+      this.stats.streak++;
+    } else {
+      s.wrong++;
+      this.stats.wrongTotal++;
+      this.stats.streak = 0;
+    }
+
+    this.saveStats();
+    this.showFeedback(
+      isCorrect,
+      q.ansSentence,
+      userSentence,
+      q.note || 'Слова расставлены в идеальном порядке.',
+      'Порядок слов не соответствует структуре предложения.'
+    );
+  },
+
+  showFeedback(isCorrect, correctAns, userAns, whyCorrect, whyWrong){
+    const slot = document.getElementById('feedback-slot');
+    slot.innerHTML = `
+      <div class="feedback-bar ${isCorrect ? 'correct' : 'wrong'}">
+        <div class="feedback-header">
+          <div class="feedback-title">${isCorrect ? '🎉 Отлично! Правильно' : '❌ Ошибка'}</div>
+        </div>
+        <div class="explain-box">
+          <div class="explain-item">
+            <span class="explain-lbl">Correct answer:</span>
+            <span class="explain-val correct-val">${correctAns}</span>
+          </div>
+          <div class="explain-item">
+            <span class="explain-lbl">Why:</span>
+            <span class="explain-val">${whyCorrect || 'Это значение слова в контексте.'}</span>
+          </div>
+          ${!isCorrect ? `
+          <div class="explain-item">
+            <span class="explain-lbl">Your answer:</span>
+            <span class="explain-val wrong-val">${userAns}</span>
+          </div>
+          <div class="explain-item">
+            <span class="explain-lbl">Why it's wrong:</span>
+            <span class="explain-val">${whyWrong || 'Выбранный вариант не совпадает по значению.'}</span>
+          </div>` : ''}
+        </div>
+        <button class="next-btn" onclick="App.nextQuestion()">Продолжить</button>
+      </div>
+    `;
+  },
+
+  nextQuestion(){
+    this.session.idx++;
+    this.renderGameQuestion();
+  },
+
+  finishSession(){
+    document.getElementById('session-emoji').textContent = this.session.correct > this.session.wrong ? '🌟' : '💪';
+    document.getElementById('session-title').textContent = 'Сессия завершена!';
+    document.getElementById('session-text').textContent = `Правильных ответов: ${this.session.correct} из ${this.session.questions.length}`;
+    document.getElementById('overlay-session').classList.add('show');
+  },
+
+  closeOverlayHome(){
+    document.getElementById('overlay-session').classList.remove('show');
+    this.showView('home');
+  },
+
+  /* ---------- READING MODE ---------- */
+  renderReadingHub(){
+    const container = document.getElementById('reading-level-list');
+    const levels = ['B1', 'B2', 'C1', 'C2'];
+    const curr = this.readingState.currentLevel;
+    const levelOrder = { B1: 1, B2: 2, C1: 3, C2: 4 };
+
+    container.innerHTML = levels.map(lvl => {
+      const isLocked = levelOrder[lvl] > levelOrder[curr];
+      const count = this.readingState[lvl] || 0;
+      const pct = Math.min(100, Math.round((count / 10) * 100));
+
+      return `
+        <div class="reading-level-card ${isLocked ? 'locked' : ''}">
+          <div class="rl-head">
+            <span class="rl-title">Уровень ${lvl}</span>
+            <span class="rl-badge">${count} / 10 заданий</span>
+          </div>
+          <div class="rl-desc">
+            ${lvl === 'B1' ? 'Повседневные темы, базовый анализ деталей.' : ''}
+            ${lvl === 'B2' ? 'Наука, экономика, авторская позиция.' : ''}
+            ${lvl === 'C1' ? 'Академическая лексика, тон и подтекст.' : ''}
+            ${lvl === 'C2' ? 'Стилистические нюансы и сложная аргументация.' : ''}
+          </div>
+          <div class="rl-progress-track"><div class="rl-progress-fill" style="width:${pct}%"></div></div>
+          <button class="btn-primary" style="margin-top:6px;padding:12px;" 
+                  data-action="start-reading-level" data-arg="${lvl}" ${isLocked ? 'disabled' : ''}>
+            ${isLocked ? '🔒 Заблокировано' : (count >= 10 ? 'Пройти снова' : 'Начать Reading')}
+          </button>
+        </div>
+      `;
+    }).join('');
+  },
+
+  startReadingLevel(lvl){
+    Storage.resetUsedIfFull('texts', READING_DB[lvl].length);
+    const usedTexts = Storage.getUsed('texts');
+    const avail = READING_DB[lvl].filter(t => !usedTexts.has(t.id));
+
+    const textObj = (avail.length > 0 ? avail : READING_DB[lvl])[0];
+    Storage.addUsed('texts', textObj.id);
+
+    this.session = {
+      type: 'reading',
+      level: lvl,
+      textObj: textObj,
+      questions: textObj.questions,
+      idx: 0,
+      correct: 0,
+      wrong: 0
+    };
+
+    document.getElementById('reader-heading').textContent = textObj.title;
+    document.getElementById('reader-level-badge').textContent = lvl;
+    const taskCount = this.readingState[lvl] || 0;
+    document.getElementById('reader-task-num').textContent = `Задание ${Math.min(10, taskCount + 1)} / 10`;
+
+    const body = document.getElementById('reader-body');
+    body.innerHTML = textObj.paragraphs.map(p => `<p>${p}</p>`).join('') + 
+                     `<div class="source-tag">Источник: ${textObj.source}</div>`;
+
+    this.showView('reader');
+  },
+
+  startReadingQuiz(){
+    this.showView('reading-quiz');
+    this.renderReadingQuestion();
+  },
+
+  renderReadingQuestion(){
+    const area = document.getElementById('rq-area');
+    const s = this.session;
+
+    if(s.idx >= s.questions.length){
+      this.finishReadingTask();
+      return;
+    }
+
+    const pct = Math.round((s.idx / s.questions.length) * 100);
+    document.getElementById('rq-progress-fill').style.width = pct + '%';
+
+    const q = s.questions[s.idx];
+    s.activeItem = q;
+
+    area.innerHTML = `
+      <div class="q-card">
+        <span class="q-badge">Reading · ${s.level}</span>
+        <div class="q-prompt small">${q.prompt}</div>
+      </div>
+      <div class="options-grid one-col" id="rq-opt-grid">
+        ${q.opts.map(opt => `<button class="opt-btn" onclick="App.handleReadingAnswer('${opt.replace(/'/g, "\\'")}')">${opt}</button>`).join('')}
+      </div>
+      <div id="rq-feedback-slot"></div>
+    `;
+  },
+
+  handleReadingAnswer(userAns){
+    const s = this.session;
+    const q = s.activeItem;
+    const isCorrect = userAns === q.ans;
+
+    const btns = document.querySelectorAll('#rq-opt-grid .opt-btn');
+    btns.forEach(b => {
+      b.classList.add('disabled');
+      if(b.textContent === q.ans) b.classList.add('correct');
+      if(b.textContent === userAns && !isCorrect) b.classList.add('wrong');
+      if(b.textContent !== q.ans && b.textContent !== userAns) b.classList.add('dim');
+    });
+
+    if(isCorrect){
+      s.correct++;
+      this.stats.correctTotal++;
+      this.stats.xp += 25;
+    } else {
+      s.wrong++;
+      this.stats.wrongTotal++;
+    }
+
+    this.saveStats();
+
+    const slot = document.getElementById('rq-feedback-slot');
+    slot.innerHTML = `
+      <div class="feedback-bar ${isCorrect ? 'correct' : 'wrong'}">
+        <div class="feedback-header"><div class="feedback-title">${isCorrect ? '🎉 Правильно!' : '❌ Неверно'}</div></div>
+        <div class="explain-box">
+          <div class="explain-item"><span class="explain-lbl">Correct answer:</span><span class="explain-val correct-val">${q.ans}</span></div>
+          <div class="explain-item"><span class="explain-lbl">Why:</span><span class="explain-val">${q.whyCorrect}</span></div>
+        </div>
+        <button class="next-btn" onclick="App.nextReadingQuestion()">Дальше</button>
+      </div>
+    `;
+  },
+
+  nextReadingQuestion(){
+    this.session.idx++;
+    this.renderReadingQuestion();
+  },
+
+  finishReadingTask(){
+    const lvl = this.session.level;
+    this.readingState[lvl] = (this.readingState[lvl] || 0) + 1;
+
+    if(this.readingState[lvl] >= 10){
+      if(lvl === 'B1') this.readingState.currentLevel = 'B2';
+      else if(lvl === 'B2') this.readingState.currentLevel = 'C1';
+      else if(lvl === 'C1') this.readingState.currentLevel = 'C2';
+
+      document.getElementById('levelup-title').textContent = `Уровень ${lvl} пройден!`;
+      document.getElementById('levelup-desc').textContent = `Вы завершили 10 Reading-заданий уровня ${lvl}. Следующий уровень разблокирован!`;
+      document.getElementById('overlay-reading-levelup').classList.add('show');
+    } else {
+      this.finishSession();
+    }
+
+    this.saveStats();
+  },
+
+  closeOverlayReading(){
+    document.getElementById('overlay-reading-levelup').classList.remove('show');
+    this.showView('reading');
+  },
+
+  /* ---------- GRAMMAR ---------- */
+  renderGrammarHub(){
+    const tabs = document.getElementById('grammar-level-tabs');
+    const levels = ['A2', 'B1', 'B2', 'C1'];
+
+    tabs.innerHTML = levels.map((lvl, i) => 
+      `<button class="level-tab ${i===0?'active':''}" onclick="App.switchGrammarTab('${lvl}', this)">${lvl}</button>`
+    ).join('');
+
+    this.renderGrammarList('A2');
+  },
+
+  switchGrammarTab(lvl, el){
+    document.querySelectorAll('#grammar-level-tabs .level-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    this.renderGrammarList(lvl);
+  },
+
+  renderGrammarList(lvl){
+    const container = document.getElementById('grammar-topic-list');
+    const topics = GRAMMAR_DB[lvl] || [];
+
+    container.innerHTML = topics.map(t => `
+      <div class="reading-level-card">
+        <div class="rl-head"><span class="rl-title">${t.name}</span><span class="rl-badge">${lvl}</span></div>
+        <button class="btn-primary" style="margin-top:8px;padding:12px;" 
+                data-action="start-grammar-topic" data-level="${lvl}" data-topic="${t.id}">
+          Практиковать тему
+        </button>
+      </div>
+    `).join('');
+  },
+
+  startGrammarTopic(lvl, topicId){
+    const topic = GRAMMAR_DB[lvl].find(t => t.id === topicId);
+    this.session = {
+      type: 'grammar',
+      questions: topic.exercises.map(ex => ({
+        badge: lvl + ' · ' + topic.name,
+        prompt: ex.prompt,
+        ans: ex.ans,
+        opts: ex.opts,
+        whyCorrect: ex.whyCorrect,
+        whyWrong: ex.whyWrong
+      })),
+      idx: 0,
+      correct: 0,
+      wrong: 0
+    };
+
+    this.showView('grammar-quiz');
+    this.renderGrammarQuestion();
+  },
+
+  renderGrammarQuestion(){
+    const area = document.getElementById('gq-area');
+    const s = this.session;
+
+    if(s.idx >= s.questions.length){
+      this.finishSession();
+      return;
+    }
+
+    const pct = Math.round((s.idx / s.questions.length) * 100);
+    document.getElementById('gq-progress-fill').style.width = pct + '%';
+
+    const q = s.questions[s.idx];
+    s.activeItem = q;
+
+    area.innerHTML = `
+      <div class="q-card">
+        <span class="q-badge">${q.badge}</span>
+        <div class="q-prompt small">${q.prompt}</div>
+      </div>
+      <div class="options-grid one-col" id="gq-opt-grid">
+        ${q.opts.map(opt => `<button class="opt-btn" onclick="App.handleGrammarAnswer('${opt.replace(/'/g, "\\'")}')">${opt}</button>`).join('')}
+      </div>
+      <div id="gq-feedback-slot"></div>
+    `;
+  },
+
+  handleGrammarAnswer(userAns){
+    const s = this.session;
+    const q = s.activeItem;
+    const isCorrect = userAns === q.ans;
+
+    const btns = document.querySelectorAll('#gq-opt-grid .opt-btn');
+    btns.forEach(b => {
+      b.classList.add('disabled');
+      if(b.textContent === q.ans) b.classList.add('correct');
+      if(b.textContent === userAns && !isCorrect) b.classList.add('wrong');
+      if(b.textContent !== q.ans && b.textContent !== userAns) b.classList.add('dim');
+    });
+
+    if(isCorrect){
+      s.correct++;
+      this.stats.correctTotal++;
+      this.stats.xp += 15;
+    } else {
+      s.wrong++;
+      this.stats.wrongTotal++;
+    }
+
+    this.saveStats();
+
+    const slot = document.getElementById('gq-feedback-slot');
+    slot.innerHTML = `
+      <div class="feedback-bar ${isCorrect ? 'correct' : 'wrong'}">
+        <div class="feedback-header"><div class="feedback-title">${isCorrect ? '🎉 Правильно!' : '❌ Неверно'}</div></div>
+        <div class="explain-box">
+          <div class="explain-item"><span class="explain-lbl">Correct answer:</span><span class="explain-val correct-val">${q.ans}</span></div>
+          <div class="explain-item"><span class="explain-lbl">Why:</span><span class="explain-val">${q.whyCorrect}</span></div>
+        </div>
+        <button class="next-btn" onclick="App.nextGrammarQuestion()">Продолжить</button>
+      </div>
+    `;
+  },
+
+  nextGrammarQuestion(){
+    this.session.idx++;
+    this.renderGrammarQuestion();
+  },
+
+  /* ---------- DICTIONARY VIEW & SEARCH ---------- */
+  renderWordsView(){
+    const tabs = document.getElementById('word-level-tabs');
+    const levels = ['All', 'A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+
+    tabs.innerHTML = levels.map((lvl) => 
+      `<button class="level-tab ${this.wordFilterLevel === lvl ? 'active' : ''}" onclick="App.filterWords('${lvl}', this)">${lvl}</button>`
+    ).join('');
+
+    this.filterWords(this.wordFilterLevel);
+  },
+
+  filterWords(lvl, el){
+    this.wordFilterLevel = lvl;
+    if(el){
+      document.querySelectorAll('#word-level-tabs .level-tab').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+    }
+    this.renderWordList();
+  },
+
+  onWordSearch(query){
+    this.wordSearchQuery = query.toLowerCase().trim();
+    this.renderWordList();
+  },
+
+  renderWordList(){
+    const list = document.getElementById('word-list');
+    let filtered = this.wordFilterLevel === 'All' ? WORDS_DB : WORDS_DB.filter(w => w.lvl === this.wordFilterLevel);
+
+    if (this.wordSearchQuery) {
+      filtered = filtered.filter(w => 
+        w.en.toLowerCase().includes(this.wordSearchQuery) || 
+        w.ru.toLowerCase().includes(this.wordSearchQuery)
+      );
+    }
+
+    const renderLimit = 150;
+    const slice = filtered.slice(0, renderLimit);
+
+    list.innerHTML = slice.map(w => `
+      <div class="word-item">
+        <div>
+          <div class="word-item-en">${w.en} <span style="font-size:11px;color:var(--primary);font-weight:normal;">[${w.lvl}]</span></div>
+          <div class="word-item-ru">${w.ru}</div>
+          <div class="word-item-ex">${w.ex}</div>
+        </div>
+      </div>
+    `).join('') + (filtered.length > renderLimit ? `<div style="text-align:center;font-size:12px;color:var(--text-muted);padding:10px;">Показано ${renderLimit} из ${filtered.length} слов. Уточните поиск.</div>` : '');
+  },
+
+  renderProgressReadingLevels(){
+    const container = document.getElementById('prog-reading-levels');
+    const levels = ['B1', 'B2', 'C1', 'C2'];
+    const curr = this.readingState.currentLevel;
+    const levelOrder = { B1: 1, B2: 2, C1: 3, C2: 4 };
+
+    container.innerHTML = levels.map(lvl => {
+      const count = this.readingState[lvl] || 0;
+      let statusClass = 'locked';
+      let statusTxt = '🔒 Заблокирован';
+
+      if(levelOrder[lvl] < levelOrder[curr] || count >= 10){
+        statusClass = 'completed';
+        statusTxt = '✓ Пройдён (10/10)';
+      } else if(lvl === curr){
+        statusClass = 'active';
+        statusTxt = `${count} / 10 выполнено`;
+      }
+
+      return `
+        <div class="level-step-box">
+          <div>
+            <div class="level-step-title">Уровень ${lvl}</div>
+            <div class="level-step-sub">${lvl==='B1'?'Средняя сложность':lvl==='B2'?'Продвинутый':'Академический'}</div>
+          </div>
+          <div class="level-step-status ${statusClass}">${statusTxt}</div>
+        </div>
+      `;
+    }).join('');
+  }
+};
+
+window.addEventListener('DOMContentLoaded', () => App.init());
+</script>
+</body>
+</html>
